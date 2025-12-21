@@ -299,11 +299,11 @@ const BudgetTemplatePage = () => {
         <div className="flex gap-2">
           <Button
             variant="outline"
-            onClick={handlePrint}
-            data-testid="print-btn"
+            onClick={handleExportPDF}
+            data-testid="export-pdf-btn"
           >
-            <Printer className="w-4 h-4 mr-2" />
-            Imprimir / PDF
+            <Download className="w-4 h-4 mr-2" />
+            Exportar PDF
           </Button>
           <Button
             onClick={handleSave}
