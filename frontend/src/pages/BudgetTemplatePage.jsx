@@ -78,8 +78,7 @@ const BudgetTemplatePage = () => {
     numDias: "",
     dietasDia: "",
     alojamientoDia: "",
-    horasExtra: "",
-    operariosHoraExtra: "",
+    extraDia: "", // Extra por día (se multiplica por nº operarios)
   });
 
   // Observations
