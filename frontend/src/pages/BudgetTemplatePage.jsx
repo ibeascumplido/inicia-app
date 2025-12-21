@@ -653,7 +653,7 @@ const BudgetTemplatePage = () => {
                           data-testid={`material-notas-${index}`}
                         />
                       </td>
-                      <td className="px-1 py-1 print:hidden">
+                      <td className="px-1 py-1 print:hidden" data-pdf-hide="true">
                         <Button
                           type="button"
                           variant="ghost"
