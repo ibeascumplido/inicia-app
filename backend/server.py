@@ -240,6 +240,74 @@ async def delete_event(event_id: str):
         raise HTTPException(status_code=404, detail="Event not found")
     return {"message": "Event deleted successfully"}
 
+# ============ BUDGET TEMPLATE ENDPOINTS ============
+
+@api_router.get("/budget-templates", response_model=List[BudgetTemplate])
+async def get_budget_templates(status: Optional[BudgetStatus] = None):
+    query = {}
+    if status:
+        query["status"] = status.value
+    templates = await db.budget_templates.find(query, {"_id": 0}).to_list(1000)
+    for t in templates:
+        if isinstance(t.get('created_at'), str):
+            t['created_at'] = datetime.fromisoformat(t['created_at'])
+    return templates
+
+@api_router.get("/budget-templates/{template_id}", response_model=BudgetTemplate)
+async def get_budget_template(template_id: str):
+    template = await db.budget_templates.find_one({"id": template_id}, {"_id": 0})
+    if not template:
+        raise HTTPException(status_code=404, detail="Budget template not found")
+    if isinstance(template.get('created_at'), str):
+        template['created_at'] = datetime.fromisoformat(template['created_at'])
+    return template
+
+@api_router.post("/budget-templates", response_model=BudgetTemplate)
+async def create_budget_template(template_data: BudgetTemplateCreate):
+    template = BudgetTemplate(**template_data.model_dump())
+    doc = template.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    # Convert nested models to dicts
+    if doc.get('materiales'):
+        doc['materiales'] = [m if isinstance(m, dict) else m.model_dump() for m in doc['materiales']]
+    if doc.get('porte'):
+        doc['porte'] = doc['porte'] if isinstance(doc['porte'], dict) else doc['porte'].model_dump()
+    if doc.get('mano_obra'):
+        doc['mano_obra'] = doc['mano_obra'] if isinstance(doc['mano_obra'], dict) else doc['mano_obra'].model_dump()
+    await db.budget_templates.insert_one(doc)
+    return template
+
+@api_router.put("/budget-templates/{template_id}", response_model=BudgetTemplate)
+async def update_budget_template(template_id: str, template_data: BudgetTemplateUpdate):
+    existing = await db.budget_templates.find_one({"id": template_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Budget template not found")
+    
+    update_data = {}
+    for k, v in template_data.model_dump().items():
+        if v is not None:
+            if k == 'materiales' and v:
+                update_data[k] = [m if isinstance(m, dict) else m.model_dump() for m in v]
+            elif k in ['porte', 'mano_obra'] and v:
+                update_data[k] = v if isinstance(v, dict) else v.model_dump()
+            else:
+                update_data[k] = v
+    
+    if update_data:
+        await db.budget_templates.update_one({"id": template_id}, {"$set": update_data})
+    
+    updated = await db.budget_templates.find_one({"id": template_id}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    return updated
+
+@api_router.delete("/budget-templates/{template_id}")
+async def delete_budget_template(template_id: str):
+    result = await db.budget_templates.delete_one({"id": template_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Budget template not found")
+    return {"message": "Budget template deleted successfully"}
+
 # ============ DASHBOARD STATS ============
 
 @api_router.get("/dashboard/stats")
