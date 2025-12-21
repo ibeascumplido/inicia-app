@@ -64,4 +64,38 @@ input[type="number"] {
     .pdf-hide {
         display: none !important;
     }
+    
+    /* Ocultar elementos que no deben aparecer en el PDF */
+    [data-pdf-hide="true"] {
+        display: none !important;
+    }
+    
+    /* Ocultar sidebar y barra de acciones */
+    aside, nav, [data-testid="sidebar"] {
+        display: none !important;
+    }
+    
+    /* Ajustar el contenido principal */
+    main {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Estilos de impresión para el presupuesto */
+    body {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+    
+    /* Ocultar botones de acción */
+    button {
+        display: none !important;
+    }
+    
+    /* Mostrar inputs como texto */
+    input, textarea, select {
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
 }
