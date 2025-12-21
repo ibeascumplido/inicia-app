@@ -187,11 +187,11 @@ const HomePage = () => {
                   <li key={budget.id} className="p-4 hover:bg-slate-50 transition-colors" data-testid={`budget-item-${budget.id}`}>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium text-slate-900">{budget.title}</p>
-                        <p className="text-sm text-slate-500">{budget.client_name}</p>
+                        <p className="font-medium text-slate-900">{budget.budget_number}</p>
+                        <p className="text-sm text-slate-500">{budget.cliente}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-mono font-medium text-slate-900">{formatCurrency(budget.amount)}</p>
+                        <p className="font-mono font-medium text-slate-900">{formatCurrency(budget.total_con_iva || 0)}</p>
                         <span className={`status-badge status-${budget.status}`}>
                           {budget.status === 'pending' ? 'Pendiente' : budget.status === 'approved' ? 'Aprobado' : 'Rechazado'}
                         </span>
