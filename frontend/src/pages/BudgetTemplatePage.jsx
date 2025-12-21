@@ -419,14 +419,14 @@ const BudgetTemplatePage = () => {
                   <th className="px-2 py-2 text-right text-xs font-semibold text-slate-600 uppercase w-[8%]">
                     PRECIO
                   </th>
-                  <th className="px-2 py-2 text-right text-xs font-semibold text-slate-600 uppercase w-[8%]">
-                    IMPORTE
+                  <th className="px-2 py-2 text-right text-xs font-semibold text-slate-600 uppercase w-[9%]">
+                    PRECIO SIN IVA
                   </th>
-                  <th className="px-2 py-2 text-center text-xs font-semibold text-slate-600 uppercase w-[6%]">
+                  <th className="px-2 py-2 text-center text-xs font-semibold text-slate-600 uppercase w-[5%]">
                     I.V.A
                   </th>
                   <th className="px-2 py-2 text-right text-xs font-semibold text-slate-600 uppercase w-[10%]">
-                    IMPORTE + IVA
+                    PRECIO CON IVA
                   </th>
                   
                   {/* Columnas auxiliares (NO se imprimen) - separador visual */}
