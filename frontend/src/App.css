@@ -54,3 +54,14 @@ input[type="number"] {
     -moz-appearance: textfield;
     appearance: textfield;
 }
+
+/* Clases para ocultar elementos en PDF */
+.pdf-hide {
+    /* Visible en pantalla */
+}
+
+@media print {
+    .pdf-hide {
+        display: none !important;
+    }
+}
