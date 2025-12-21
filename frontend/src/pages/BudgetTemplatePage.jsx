@@ -145,6 +145,7 @@ const BudgetTemplatePage = () => {
   const calcularTotales = useCallback(() => {
     let totalBase = 0;
     let totalIva = 0;
+    let totalCoste = 0;
 
     // Sum materials
     materiales.forEach((m) => {
@@ -152,6 +153,10 @@ const BudgetTemplatePage = () => {
       const ivaAmount = importe * ((parseFloat(m.iva) || 0) / 100);
       totalBase += importe;
       totalIva += ivaAmount;
+      
+      // Sumar costes
+      const costeTotal = calcularImporte(m.ud, m.precio_coste);
+      totalCoste += costeTotal;
     });
 
     // Add porte
@@ -167,10 +172,17 @@ const BudgetTemplatePage = () => {
     totalBase += manoObraImporte;
     totalIva += manoObraIva;
 
+    // Calcular ganancias
+    const gananciaTotal = totalBase - totalCoste;
+    const porcentajeGanancia = totalCoste > 0 ? (gananciaTotal / totalCoste) * 100 : 0;
+
     return {
       totalBase,
       totalIva,
       totalConIva: totalBase + totalIva,
+      totalCoste,
+      gananciaTotal,
+      porcentajeGanancia,
     };
   }, [materiales, porte, manoObra]);
 
