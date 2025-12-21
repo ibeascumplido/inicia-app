@@ -120,8 +120,17 @@ const BudgetTemplatePage = () => {
           ? data.materiales
           : [{ ...emptyMaterialRow }]
       );
-      setPorte(data.porte || { ud: "1", precio: "", iva: "21" });
+      setPorte(data.porte || { ud: "1", precio: "", iva: "21", precio_coste: "" });
       setManoObra(data.mano_obra || { ud: "1", precio: "", iva: "21" });
+      setCalculoManoObra(data.calculo_mano_obra || {
+        precioHora: "",
+        numOperarios: "",
+        horasJornada: "",
+        numDias: "",
+        dietasDia: "",
+        alojamientoDia: "",
+        extraDia: "",
+      });
       setObservaciones(data.observaciones || "");
     } catch (error) {
       console.error("Error fetching budget:", error);
