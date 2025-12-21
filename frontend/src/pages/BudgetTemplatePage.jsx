@@ -830,10 +830,27 @@ const BudgetTemplatePage = () => {
                     )}{" "}
                     €
                   </td>
-                  {/* Celdas vacías para columnas auxiliares */}
+                  {/* Celdas para columnas auxiliares del porte */}
                   <td className="bg-slate-200 print:hidden" data-pdf-hide="true"></td>
-                  <td colSpan="6" className="bg-amber-50/50 print:hidden" data-pdf-hide="true"></td>
-                  <td className="print:hidden"></td>
+                  <td className="px-1 py-1 bg-amber-50 print:hidden" data-pdf-hide="true">
+                    <Input
+                      value={porte.precio_coste || ""}
+                      onChange={(e) =>
+                        setPorte({ ...porte, precio_coste: e.target.value })
+                      }
+                      placeholder="0,00"
+                      className="border-0 bg-transparent h-8 text-sm text-right font-mono"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      data-testid="porte-coste"
+                    />
+                  </td>
+                  <td className="px-2 py-1 bg-amber-50 print:hidden text-right font-mono text-sm text-slate-700" data-pdf-hide="true">
+                    {calcularImporte(porte.ud, porte.precio_coste) > 0 ? `${formatCurrency(calcularImporte(porte.ud, porte.precio_coste))} €` : ""}
+                  </td>
+                  <td colSpan="4" className="bg-amber-50/50 print:hidden" data-pdf-hide="true"></td>
+                  <td className="print:hidden" data-pdf-hide="true"></td>
                 </tr>
 
                 {/* Mano de Obra Row */}
