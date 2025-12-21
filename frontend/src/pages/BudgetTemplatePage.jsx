@@ -570,7 +570,7 @@ const BudgetTemplatePage = () => {
                       </td>
                       
                       {/* Separador */}
-                      <td className="bg-slate-200 print:hidden"></td>
+                      <td className="bg-slate-200 print:hidden" data-pdf-hide="true"></td>
                       
                       {/* Columnas auxiliares (NO se imprimen) */}
                       <td className="px-1 py-1 bg-amber-50 print:hidden">
@@ -731,7 +731,7 @@ const BudgetTemplatePage = () => {
                     €
                   </td>
                   {/* Celdas vacías para columnas auxiliares */}
-                  <td className="bg-slate-200 print:hidden"></td>
+                  <td className="bg-slate-200 print:hidden" data-pdf-hide="true"></td>
                   <td colSpan="6" className="bg-amber-50/50 print:hidden"></td>
                   <td className="print:hidden"></td>
                 </tr>
@@ -806,7 +806,7 @@ const BudgetTemplatePage = () => {
                     €
                   </td>
                   {/* Celdas vacías para columnas auxiliares */}
-                  <td className="bg-slate-200 print:hidden"></td>
+                  <td className="bg-slate-200 print:hidden" data-pdf-hide="true"></td>
                   <td colSpan="6" className="bg-amber-50/50 print:hidden"></td>
                   <td className="print:hidden"></td>
                 </tr>
