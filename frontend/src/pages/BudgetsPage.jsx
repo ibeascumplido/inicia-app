@@ -1,25 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, Search, Filter } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Pencil, Trash2, Search, Filter, Eye } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,25 +33,18 @@ const statusLabels = {
 };
 
 const BudgetsPage = () => {
+  const navigate = useNavigate();
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedBudget, setSelectedBudget] = useState(null);
-  const [formData, setFormData] = useState({
-    title: "",
-    client_name: "",
-    amount: "",
-    description: "",
-    status: "pending",
-  });
 
   const fetchBudgets = async () => {
     try {
       const params = statusFilter !== "all" ? { status: statusFilter } : {};
-      const response = await axios.get(`${API}/budgets`, { params });
+      const response = await axios.get(`${API}/budget-templates`, { params });
       setBudgets(response.data);
     } catch (error) {
       console.error("Error fetching budgets:", error);
@@ -80,55 +58,9 @@ const BudgetsPage = () => {
     fetchBudgets();
   }, [statusFilter]);
 
-  const handleOpenDialog = (budget = null) => {
-    if (budget) {
-      setSelectedBudget(budget);
-      setFormData({
-        title: budget.title,
-        client_name: budget.client_name,
-        amount: budget.amount.toString(),
-        description: budget.description || "",
-        status: budget.status,
-      });
-    } else {
-      setSelectedBudget(null);
-      setFormData({
-        title: "",
-        client_name: "",
-        amount: "",
-        description: "",
-        status: "pending",
-      });
-    }
-    setIsDialogOpen(true);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const payload = {
-        ...formData,
-        amount: parseFloat(formData.amount),
-      };
-
-      if (selectedBudget) {
-        await axios.put(`${API}/budgets/${selectedBudget.id}`, payload);
-        toast.success("Presupuesto actualizado correctamente");
-      } else {
-        await axios.post(`${API}/budgets`, payload);
-        toast.success("Presupuesto creado correctamente");
-      }
-      setIsDialogOpen(false);
-      fetchBudgets();
-    } catch (error) {
-      console.error("Error saving budget:", error);
-      toast.error("Error al guardar el presupuesto");
-    }
-  };
-
   const handleDelete = async () => {
     try {
-      await axios.delete(`${API}/budgets/${selectedBudget.id}`);
+      await axios.delete(`${API}/budget-templates/${selectedBudget.id}`);
       toast.success("Presupuesto eliminado correctamente");
       setIsDeleteDialogOpen(false);
       setSelectedBudget(null);
@@ -139,20 +71,32 @@ const BudgetsPage = () => {
     }
   };
 
+  const handleStatusChange = async (budgetId, newStatus) => {
+    try {
+      await axios.put(`${API}/budget-templates/${budgetId}`, { status: newStatus });
+      toast.success("Estado actualizado correctamente");
+      fetchBudgets();
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Error al actualizar el estado");
+    }
+  };
+
   const filteredBudgets = budgets.filter(
     (budget) =>
-      budget.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      budget.client_name.toLowerCase().includes(searchTerm.toLowerCase())
+      budget.cliente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      budget.budget_number?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("es-ES", {
       style: "currency",
       currency: "EUR",
-    }).format(amount);
+    }).format(amount || 0);
   };
 
   const formatDate = (dateStr) => {
+    if (!dateStr) return "-";
     return new Date(dateStr).toLocaleDateString("es-ES", {
       day: "numeric",
       month: "short",
@@ -170,7 +114,7 @@ const BudgetsPage = () => {
           <p className="text-slate-500 mt-1">Gestiona todos tus presupuestos</p>
         </div>
         <Button
-          onClick={() => handleOpenDialog()}
+          onClick={() => navigate("/budgets/new")}
           className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
           data-testid="create-budget-btn"
         >
@@ -184,7 +128,7 @@ const BudgetsPage = () => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
-            placeholder="Buscar por título o cliente..."
+            placeholder="Buscar por número o cliente..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 border-slate-200"
@@ -232,13 +176,13 @@ const BudgetsPage = () => {
                 <thead className="bg-slate-50 border-b border-slate-100">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      Título
+                      Nº Presupuesto
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                       Cliente
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      Importe
+                      Total
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                       Estado
@@ -261,33 +205,70 @@ const BudgetsPage = () => {
                       data-testid={`budget-row-${budget.id}`}
                     >
                       <td className="px-6 py-4">
+                        <span className="font-mono font-medium text-indigo-600">
+                          {budget.budget_number}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
                         <div>
-                          <p className="font-medium text-slate-900">{budget.title}</p>
-                          {budget.description && (
+                          <p className="font-medium text-slate-900">{budget.cliente}</p>
+                          {budget.lugar_ejecucion && (
                             <p className="text-sm text-slate-500 truncate max-w-xs">
-                              {budget.description}
+                              {budget.lugar_ejecucion}
                             </p>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-slate-600">{budget.client_name}</td>
                       <td className="px-6 py-4 font-mono font-medium text-slate-900">
-                        {formatCurrency(budget.amount)}
+                        {formatCurrency(budget.total_con_iva)}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`status-badge status-${budget.status}`}>
-                          {statusLabels[budget.status]}
-                        </span>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              className={`status-badge status-${budget.status} cursor-pointer hover:opacity-80`}
+                              data-testid={`status-badge-${budget.id}`}
+                            >
+                              {statusLabels[budget.status]}
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem
+                              onClick={() => handleStatusChange(budget.id, "pending")}
+                            >
+                              Pendiente
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleStatusChange(budget.id, "approved")}
+                            >
+                              Aprobado
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleStatusChange(budget.id, "rejected")}
+                            >
+                              Rechazado
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </td>
                       <td className="px-6 py-4 text-slate-500 text-sm">
-                        {formatDate(budget.created_at)}
+                        {formatDate(budget.budget_date)}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleOpenDialog(budget)}
+                            onClick={() => navigate(`/budgets/${budget.id}`)}
+                            className="text-slate-600 hover:text-slate-900"
+                            data-testid={`view-budget-${budget.id}`}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => navigate(`/budgets/${budget.id}`)}
                             className="text-slate-600 hover:text-slate-900"
                             data-testid={`edit-budget-${budget.id}`}
                           >
@@ -316,99 +297,6 @@ const BudgetsPage = () => {
         </CardContent>
       </Card>
 
-      {/* Create/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-lg" data-testid="budget-dialog">
-          <DialogHeader>
-            <DialogTitle className="font-['Manrope']">
-              {selectedBudget ? "Editar Presupuesto" : "Nuevo Presupuesto"}
-            </DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Título</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Nombre del presupuesto"
-                required
-                data-testid="budget-title-input"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="client_name">Cliente</Label>
-              <Input
-                id="client_name"
-                value={formData.client_name}
-                onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
-                placeholder="Nombre del cliente"
-                required
-                data-testid="budget-client-input"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="amount">Importe (EUR)</Label>
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                placeholder="0.00"
-                required
-                data-testid="budget-amount-input"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="status">Estado</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => setFormData({ ...formData, status: value })}
-              >
-                <SelectTrigger data-testid="budget-status-select">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">Pendiente</SelectItem>
-                  <SelectItem value="approved">Aprobado</SelectItem>
-                  <SelectItem value="rejected">Rechazado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Descripción (opcional)</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Descripción del presupuesto..."
-                rows={3}
-                data-testid="budget-description-input"
-              />
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsDialogOpen(false)}
-                data-testid="cancel-budget-btn"
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="submit"
-                className="bg-indigo-600 hover:bg-indigo-700"
-                data-testid="save-budget-btn"
-              >
-                {selectedBudget ? "Guardar Cambios" : "Crear Presupuesto"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
       {/* Delete Confirmation */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent data-testid="delete-dialog">
@@ -416,7 +304,7 @@ const BudgetsPage = () => {
             <AlertDialogTitle>¿Eliminar presupuesto?</AlertDialogTitle>
             <AlertDialogDescription>
               Esta acción no se puede deshacer. Se eliminará permanentemente el presupuesto
-              "{selectedBudget?.title}".
+              "{selectedBudget?.budget_number}".
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
