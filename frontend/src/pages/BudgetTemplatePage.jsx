@@ -732,7 +732,7 @@ const BudgetTemplatePage = () => {
                   </td>
                   {/* Celdas vacías para columnas auxiliares */}
                   <td className="bg-slate-200 print:hidden" data-pdf-hide="true"></td>
-                  <td colSpan="6" className="bg-amber-50/50 print:hidden"></td>
+                  <td colSpan="6" className="bg-amber-50/50 print:hidden" data-pdf-hide="true"></td>
                   <td className="print:hidden"></td>
                 </tr>
 
@@ -807,7 +807,7 @@ const BudgetTemplatePage = () => {
                   </td>
                   {/* Celdas vacías para columnas auxiliares */}
                   <td className="bg-slate-200 print:hidden" data-pdf-hide="true"></td>
-                  <td colSpan="6" className="bg-amber-50/50 print:hidden"></td>
+                  <td colSpan="6" className="bg-amber-50/50 print:hidden" data-pdf-hide="true"></td>
                   <td className="print:hidden"></td>
                 </tr>
               </tbody>
