@@ -430,7 +430,7 @@ const BudgetTemplatePage = () => {
               variant="ghost"
               size="sm"
               onClick={addMaterialRow}
-              className="text-white hover:bg-indigo-500 print:hidden"
+              className="text-white hover:bg-indigo-500 print:hidden" data-pdf-hide="true"
               data-testid="add-material-btn"
             >
               <Plus className="w-4 h-4 mr-1" />
