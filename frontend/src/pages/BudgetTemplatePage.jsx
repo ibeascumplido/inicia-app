@@ -896,17 +896,6 @@ const BudgetTemplatePage = () => {
             </div>
           </div>
         </div>
-            <div className="flex justify-between py-3 bg-indigo-50 px-3 rounded-lg print:bg-slate-100">
-              <span className="font-bold text-indigo-900 print:text-slate-900">TOTAL IVA INCLUIDO</span>
-              <span
-                className="font-mono font-bold text-indigo-600 text-lg print:text-slate-900"
-                data-testid="total-con-iva"
-              >
-                {formatCurrency(totales.totalConIva)} €
-              </span>
-            </div>
-          </div>
-        </div>
 
         {/* Observations */}
         <div className="mb-8">
