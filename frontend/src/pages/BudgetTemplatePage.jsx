@@ -1060,35 +1060,21 @@ const BudgetTemplatePage = () => {
                     </td>
                   </tr>
                   <tr className="bg-white">
-                    <td className="px-3 py-2 text-slate-700">Horas extra (por operario)</td>
+                    <td className="px-3 py-2 text-slate-700">Extra por día</td>
                     <td className="px-3 py-2">
                       <Input
-                        value={calculoManoObra.horasExtra}
-                        onChange={(e) => handleCalculoManoObraChange("horasExtra", e.target.value)}
-                        placeholder="0"
+                        value={calculoManoObra.extraDia}
+                        onChange={(e) => handleCalculoManoObraChange("extraDia", e.target.value)}
+                        placeholder="0,00"
                         className="w-24 text-center text-sm h-8 mx-auto"
                         type="number"
                         min="0"
-                        data-testid="calculo-horas-extra"
-                      />
-                    </td>
-                    <td className="px-3 py-2 text-right font-mono text-slate-400">-</td>
-                  </tr>
-                  <tr className="bg-white">
-                    <td className="px-3 py-2 text-slate-700">Nº operarios para horas extra</td>
-                    <td className="px-3 py-2">
-                      <Input
-                        value={calculoManoObra.operariosHoraExtra}
-                        onChange={(e) => handleCalculoManoObraChange("operariosHoraExtra", e.target.value)}
-                        placeholder="0"
-                        className="w-24 text-center text-sm h-8 mx-auto"
-                        type="number"
-                        min="0"
-                        data-testid="calculo-operarios-extra"
+                        step="0.01"
+                        data-testid="calculo-extra-dia"
                       />
                     </td>
                     <td className="px-3 py-2 text-right font-mono font-medium text-slate-900">
-                      {formatCurrency(totalesManoObra.totalHorasExtra)} €
+                      {formatCurrency(totalesManoObra.totalExtra)} €
                     </td>
                   </tr>
                   <tr className="bg-blue-200 font-semibold">
