@@ -881,15 +881,15 @@ const BudgetTemplatePage = () => {
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-white rounded-lg p-3 border border-green-100">
-                <p className="text-xs text-slate-500 uppercase">Coste Total</p>
-                <p className="font-mono font-semibold text-slate-900">{formatCurrency(totales.totalCoste)} €</p>
+                <p className="text-xs text-slate-500 uppercase">Coste Materiales</p>
+                <p className="font-mono font-semibold text-slate-900">{formatCurrency(totales.totalCosteMateriales)} €</p>
               </div>
               <div className="bg-white rounded-lg p-3 border border-green-100">
-                <p className="text-xs text-slate-500 uppercase">Precio Venta (sin IVA)</p>
-                <p className="font-mono font-semibold text-slate-900">{formatCurrency(totales.totalBase)} €</p>
+                <p className="text-xs text-slate-500 uppercase">Venta Materiales (sin IVA)</p>
+                <p className="font-mono font-semibold text-slate-900">{formatCurrency(totales.totalVentaMateriales)} €</p>
               </div>
               <div className="bg-white rounded-lg p-3 border border-green-100">
-                <p className="text-xs text-slate-500 uppercase">Ganancia Total</p>
+                <p className="text-xs text-slate-500 uppercase">Ganancia Materiales</p>
                 <p className="font-mono font-semibold text-green-600">{formatCurrency(totales.gananciaTotal)} €</p>
               </div>
               <div className="bg-green-100 rounded-lg p-3 border border-green-200">
