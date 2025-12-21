@@ -1142,11 +1142,11 @@ const BudgetTemplatePage = () => {
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-white rounded-lg p-3 border border-green-100">
-                <p className="text-xs text-slate-500 uppercase">Coste Materiales</p>
+                <p className="text-xs text-slate-500 uppercase">Coste Materiales + Porte</p>
                 <p className="font-mono font-semibold text-slate-900">{formatCurrency(totales.totalCosteMateriales)} €</p>
               </div>
               <div className="bg-white rounded-lg p-3 border border-green-100">
-                <p className="text-xs text-slate-500 uppercase">Venta Materiales (sin IVA)</p>
+                <p className="text-xs text-slate-500 uppercase">Venta Materiales + Porte (sin IVA)</p>
                 <p className="font-mono font-semibold text-slate-900">{formatCurrency(totales.totalVentaMateriales)} €</p>
               </div>
               <div className="bg-white rounded-lg p-3 border border-green-100">
