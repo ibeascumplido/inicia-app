@@ -465,22 +465,22 @@ const BudgetTemplatePage = () => {
                   <th className="px-1 py-2 bg-slate-200 w-[1px] print:hidden"></th>
                   
                   {/* Columnas en minúscula - solo edición */}
-                  <th className="px-2 py-2 text-right text-xs font-normal text-slate-500 lowercase w-[7%] print:hidden bg-amber-50">
+                  <th className="px-2 py-2 text-right text-xs font-normal text-slate-500 lowercase w-[7%] print:hidden bg-amber-50" data-pdf-hide="true">
                     precio coste
                   </th>
-                  <th className="px-2 py-2 text-center text-xs font-normal text-slate-500 lowercase w-[5%] print:hidden bg-amber-50">
+                  <th className="px-2 py-2 text-center text-xs font-normal text-slate-500 lowercase w-[5%] print:hidden bg-amber-50" data-pdf-hide="true">
                     margen %
                   </th>
-                  <th className="px-2 py-2 text-center text-xs font-normal text-slate-500 lowercase w-[5%] print:hidden bg-amber-50">
+                  <th className="px-2 py-2 text-center text-xs font-normal text-slate-500 lowercase w-[5%] print:hidden bg-amber-50" data-pdf-hide="true">
                     horas
                   </th>
-                  <th className="px-2 py-2 text-center text-xs font-normal text-slate-500 lowercase w-[5%] print:hidden bg-amber-50">
+                  <th className="px-2 py-2 text-center text-xs font-normal text-slate-500 lowercase w-[5%] print:hidden bg-amber-50" data-pdf-hide="true">
                     litros
                   </th>
-                  <th className="px-2 py-2 text-center text-xs font-normal text-slate-500 lowercase w-[5%] print:hidden bg-amber-50">
+                  <th className="px-2 py-2 text-center text-xs font-normal text-slate-500 lowercase w-[5%] print:hidden bg-amber-50" data-pdf-hide="true">
                     altura
                   </th>
-                  <th className="px-2 py-2 text-left text-xs font-normal text-slate-500 lowercase w-[10%] print:hidden bg-amber-50">
+                  <th className="px-2 py-2 text-left text-xs font-normal text-slate-500 lowercase w-[10%] print:hidden bg-amber-50" data-pdf-hide="true">
                     notas
                   </th>
                   <th className="px-2 py-2 w-[3%] print:hidden"></th>
