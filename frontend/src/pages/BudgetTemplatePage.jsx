@@ -945,6 +945,169 @@ const BudgetTemplatePage = () => {
           </div>
         </div>
 
+        {/* Sección de CÁLCULO MANO DE OBRA - NO aparece en PDF */}
+        <div className="mb-8 print:hidden" data-pdf-hide="true">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h3 className="font-semibold text-blue-800 mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+              CÁLCULO MANO DE OBRA (no aparece en PDF)
+            </h3>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-blue-100">
+                    <th className="px-3 py-2 text-left text-xs font-semibold text-blue-800">Concepto</th>
+                    <th className="px-3 py-2 text-center text-xs font-semibold text-blue-800">Valor</th>
+                    <th className="px-3 py-2 text-right text-xs font-semibold text-blue-800">Total</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-blue-100">
+                  <tr className="bg-white">
+                    <td className="px-3 py-2 text-slate-700">Precio hora de trabajo/operario</td>
+                    <td className="px-3 py-2">
+                      <Input
+                        value={calculoManoObra.precioHora}
+                        onChange={(e) => handleCalculoManoObraChange("precioHora", e.target.value)}
+                        placeholder="0,00"
+                        className="w-24 text-center text-sm h-8 mx-auto"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        data-testid="calculo-precio-hora"
+                      />
+                    </td>
+                    <td className="px-3 py-2 text-right font-mono text-slate-400">-</td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="px-3 py-2 text-slate-700">Nº operarios</td>
+                    <td className="px-3 py-2">
+                      <Input
+                        value={calculoManoObra.numOperarios}
+                        onChange={(e) => handleCalculoManoObraChange("numOperarios", e.target.value)}
+                        placeholder="0"
+                        className="w-24 text-center text-sm h-8 mx-auto"
+                        type="number"
+                        min="0"
+                        data-testid="calculo-num-operarios"
+                      />
+                    </td>
+                    <td className="px-3 py-2 text-right font-mono text-slate-400">-</td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="px-3 py-2 text-slate-700">Nº horas por jornada/operario</td>
+                    <td className="px-3 py-2">
+                      <Input
+                        value={calculoManoObra.horasJornada}
+                        onChange={(e) => handleCalculoManoObraChange("horasJornada", e.target.value)}
+                        placeholder="0"
+                        className="w-24 text-center text-sm h-8 mx-auto"
+                        type="number"
+                        min="0"
+                        data-testid="calculo-horas-jornada"
+                      />
+                    </td>
+                    <td className="px-3 py-2 text-right font-mono text-slate-400">-</td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="px-3 py-2 text-slate-700">Nº días</td>
+                    <td className="px-3 py-2">
+                      <Input
+                        value={calculoManoObra.numDias}
+                        onChange={(e) => handleCalculoManoObraChange("numDias", e.target.value)}
+                        placeholder="0"
+                        className="w-24 text-center text-sm h-8 mx-auto"
+                        type="number"
+                        min="0"
+                        data-testid="calculo-num-dias"
+                      />
+                    </td>
+                    <td className="px-3 py-2 text-right font-mono font-medium text-slate-900">
+                      {formatCurrency(totalesManoObra.totalHorasNormales)} €
+                    </td>
+                  </tr>
+                  <tr className="bg-blue-50/50">
+                    <td className="px-3 py-2 text-slate-700">Dietas (por día/operario)</td>
+                    <td className="px-3 py-2">
+                      <Input
+                        value={calculoManoObra.dietasDia}
+                        onChange={(e) => handleCalculoManoObraChange("dietasDia", e.target.value)}
+                        placeholder="0,00"
+                        className="w-24 text-center text-sm h-8 mx-auto"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        data-testid="calculo-dietas"
+                      />
+                    </td>
+                    <td className="px-3 py-2 text-right font-mono font-medium text-slate-900">
+                      {formatCurrency(totalesManoObra.totalDietas)} €
+                    </td>
+                  </tr>
+                  <tr className="bg-blue-50/50">
+                    <td className="px-3 py-2 text-slate-700">Alojamiento (por día/operario)</td>
+                    <td className="px-3 py-2">
+                      <Input
+                        value={calculoManoObra.alojamientoDia}
+                        onChange={(e) => handleCalculoManoObraChange("alojamientoDia", e.target.value)}
+                        placeholder="0,00"
+                        className="w-24 text-center text-sm h-8 mx-auto"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        data-testid="calculo-alojamiento"
+                      />
+                    </td>
+                    <td className="px-3 py-2 text-right font-mono font-medium text-slate-900">
+                      {formatCurrency(totalesManoObra.totalAlojamiento)} €
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="px-3 py-2 text-slate-700">Horas extra (por operario)</td>
+                    <td className="px-3 py-2">
+                      <Input
+                        value={calculoManoObra.horasExtra}
+                        onChange={(e) => handleCalculoManoObraChange("horasExtra", e.target.value)}
+                        placeholder="0"
+                        className="w-24 text-center text-sm h-8 mx-auto"
+                        type="number"
+                        min="0"
+                        data-testid="calculo-horas-extra"
+                      />
+                    </td>
+                    <td className="px-3 py-2 text-right font-mono text-slate-400">-</td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="px-3 py-2 text-slate-700">Nº operarios para horas extra</td>
+                    <td className="px-3 py-2">
+                      <Input
+                        value={calculoManoObra.operariosHoraExtra}
+                        onChange={(e) => handleCalculoManoObraChange("operariosHoraExtra", e.target.value)}
+                        placeholder="0"
+                        className="w-24 text-center text-sm h-8 mx-auto"
+                        type="number"
+                        min="0"
+                        data-testid="calculo-operarios-extra"
+                      />
+                    </td>
+                    <td className="px-3 py-2 text-right font-mono font-medium text-slate-900">
+                      {formatCurrency(totalesManoObra.totalHorasExtra)} €
+                    </td>
+                  </tr>
+                  <tr className="bg-blue-200 font-semibold">
+                    <td colSpan="2" className="px-3 py-3 text-blue-900 text-right">
+                      TOTAL MANO DE OBRA →
+                    </td>
+                    <td className="px-3 py-3 text-right font-mono font-bold text-blue-900 text-lg">
+                      {formatCurrency(totalesManoObra.total)} €
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         {/* Sección de GANANCIAS - NO aparece en PDF */}
         <div className="mb-8 print:hidden" data-pdf-hide="true">
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
