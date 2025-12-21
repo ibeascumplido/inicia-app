@@ -186,6 +186,11 @@ const BudgetTemplatePage = () => {
     const porteIva = porteImporte * ((parseFloat(porte.iva) || 0) / 100);
     totalBase += porteImporte;
     totalIva += porteIva;
+    
+    // Sumar coste del porte a los costes de materiales
+    const porteCoste = calcularImporte(porte.ud, porte.precio_coste);
+    totalCosteMateriales += porteCoste;
+    totalVentaMateriales += porteImporte;
 
     // Add mano de obra
     const manoObraImporte = calcularImporte(manoObra.ud, manoObra.precio);
@@ -194,7 +199,7 @@ const BudgetTemplatePage = () => {
     totalBase += manoObraImporte;
     totalIva += manoObraIva;
 
-    // Calcular ganancias solo sobre materiales (sin mano de obra)
+    // Calcular ganancias solo sobre materiales y porte (sin mano de obra)
     const gananciaTotal = totalVentaMateriales - totalCosteMateriales;
     const porcentajeGanancia = totalCosteMateriales > 0 ? (gananciaTotal / totalCosteMateriales) * 100 : 0;
 
