@@ -256,24 +256,37 @@ const BudgetTemplatePage = () => {
   };
 
   // Export to PDF
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     const element = pdfRef.current;
+    
+    // Ocultar columnas auxiliares temporalmente
+    const auxElements = element.querySelectorAll('[data-pdf-hide="true"]');
+    auxElements.forEach(el => {
+      el.style.display = 'none';
+    });
+    
     const opt = {
-      margin: [10, 10, 10, 10],
+      margin: [10, 15, 10, 15],
       filename: `Presupuesto_${budgetNumber.replace(/\//g, '-')}_${cliente.replace(/\s+/g, '_')}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
+      html2canvas: { scale: 2, useCORS: true, logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     
     toast.info("Generando PDF...");
     
-    html2pdf().set(opt).from(element).save().then(() => {
+    try {
+      await html2pdf().set(opt).from(element).save();
       toast.success("PDF generado correctamente");
-    }).catch((err) => {
+    } catch (err) {
       console.error("Error generating PDF:", err);
       toast.error("Error al generar el PDF");
-    });
+    } finally {
+      // Restaurar columnas auxiliares
+      auxElements.forEach(el => {
+        el.style.display = '';
+      });
+    }
   };
 
   if (loading) {
