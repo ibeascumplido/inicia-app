@@ -76,6 +76,58 @@ class Event(EventBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+# Budget Template Models
+class MaterialItem(BaseModel):
+    nombre: str = ""
+    ud: str = ""
+    precio: str = ""
+    iva: str = "21"
+
+class CostItem(BaseModel):
+    ud: str = "1"
+    precio: str = ""
+    iva: str = "21"
+
+class BudgetTemplateBase(BaseModel):
+    budget_number: str
+    budget_date: str
+    cliente: str
+    lugar_ejecucion: Optional[str] = ""
+    provincia: Optional[str] = ""
+    servicios_descripcion: Optional[str] = ""
+    materiales: List[MaterialItem] = []
+    porte: Optional[CostItem] = None
+    mano_obra: Optional[CostItem] = None
+    observaciones: Optional[str] = ""
+    total_base: float = 0
+    total_iva: float = 0
+    total_con_iva: float = 0
+    status: BudgetStatus = BudgetStatus.PENDING
+
+class BudgetTemplateCreate(BudgetTemplateBase):
+    pass
+
+class BudgetTemplateUpdate(BaseModel):
+    budget_number: Optional[str] = None
+    budget_date: Optional[str] = None
+    cliente: Optional[str] = None
+    lugar_ejecucion: Optional[str] = None
+    provincia: Optional[str] = None
+    servicios_descripcion: Optional[str] = None
+    materiales: Optional[List[MaterialItem]] = None
+    porte: Optional[CostItem] = None
+    mano_obra: Optional[CostItem] = None
+    observaciones: Optional[str] = None
+    total_base: Optional[float] = None
+    total_iva: Optional[float] = None
+    total_con_iva: Optional[float] = None
+    status: Optional[BudgetStatus] = None
+
+class BudgetTemplate(BudgetTemplateBase):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 # Root endpoint
 @api_router.get("/")
 async def root():
