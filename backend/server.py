@@ -82,6 +82,12 @@ class MaterialItem(BaseModel):
     ud: str = ""
     precio: str = ""
     iva: str = "21"
+    precio_coste: str = ""
+    margen: str = "30"
+    horas: str = ""
+    litros: str = ""
+    altura: str = ""
+    notas: str = ""
 
 class CostItem(BaseModel):
     ud: str = "1"
