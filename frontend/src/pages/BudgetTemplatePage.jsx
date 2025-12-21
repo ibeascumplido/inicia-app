@@ -255,9 +255,25 @@ const BudgetTemplatePage = () => {
     }
   };
 
-  // Print budget
-  const handlePrint = () => {
-    window.print();
+  // Export to PDF
+  const handleExportPDF = () => {
+    const element = pdfRef.current;
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: `Presupuesto_${budgetNumber.replace(/\//g, '-')}_${cliente.replace(/\s+/g, '_')}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    toast.info("Generando PDF...");
+    
+    html2pdf().set(opt).from(element).save().then(() => {
+      toast.success("PDF generado correctamente");
+    }).catch((err) => {
+      console.error("Error generating PDF:", err);
+      toast.error("Error al generar el PDF");
+    });
   };
 
   if (loading) {
