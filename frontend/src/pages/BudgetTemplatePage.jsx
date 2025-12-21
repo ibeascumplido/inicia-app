@@ -209,8 +209,7 @@ const BudgetTemplatePage = () => {
     const numDias = parseFloat(calculoManoObra.numDias) || 0;
     const dietasDia = parseFloat(calculoManoObra.dietasDia) || 0;
     const alojamientoDia = parseFloat(calculoManoObra.alojamientoDia) || 0;
-    const horasExtra = parseFloat(calculoManoObra.horasExtra) || 0;
-    const operariosHoraExtra = parseFloat(calculoManoObra.operariosHoraExtra) || 0;
+    const extraDia = parseFloat(calculoManoObra.extraDia) || 0;
 
     // Total horas normales = precio hora × nº horas × nº operarios × nº días
     const totalHorasNormales = precioHora * horasJornada * numOperarios * numDias;
@@ -221,15 +220,15 @@ const BudgetTemplatePage = () => {
     // Total alojamiento = alojamiento × nº días × nº operarios
     const totalAlojamiento = alojamientoDia * numDias * numOperarios;
     
-    // Total horas extra = precio hora × horas extra × num operarios hora extra × nº días
-    const totalHorasExtra = precioHora * horasExtra * operariosHoraExtra * numDias;
+    // Total extra = extra por día × nº operarios
+    const totalExtra = extraDia * numOperarios;
 
     return {
       totalHorasNormales,
       totalDietas,
       totalAlojamiento,
-      totalHorasExtra,
-      total: totalHorasNormales + totalDietas + totalAlojamiento + totalHorasExtra,
+      totalExtra,
+      total: totalHorasNormales + totalDietas + totalAlojamiento + totalExtra,
     };
   }, [calculoManoObra]);
 
@@ -247,14 +246,13 @@ const BudgetTemplatePage = () => {
     const numDias = parseFloat(field === "numDias" ? value : newCalculo.numDias) || 0;
     const dietasDia = parseFloat(field === "dietasDia" ? value : newCalculo.dietasDia) || 0;
     const alojamientoDia = parseFloat(field === "alojamientoDia" ? value : newCalculo.alojamientoDia) || 0;
-    const horasExtra = parseFloat(field === "horasExtra" ? value : newCalculo.horasExtra) || 0;
-    const operariosHoraExtra = parseFloat(field === "operariosHoraExtra" ? value : newCalculo.operariosHoraExtra) || 0;
+    const extraDia = parseFloat(field === "extraDia" ? value : newCalculo.extraDia) || 0;
 
     const totalHorasNormales = precioHora * horasJornada * numOperarios * numDias;
     const totalDietas = dietasDia * numDias * numOperarios;
     const totalAlojamiento = alojamientoDia * numDias * numOperarios;
-    const totalHorasExtra = precioHora * horasExtra * operariosHoraExtra * numDias;
-    const total = totalHorasNormales + totalDietas + totalAlojamiento + totalHorasExtra;
+    const totalExtra = extraDia * numOperarios;
+    const total = totalHorasNormales + totalDietas + totalAlojamiento + totalExtra;
 
     // Actualizar mano de obra con el total calculado
     if (total > 0) {
