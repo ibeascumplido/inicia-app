@@ -202,6 +202,67 @@ const BudgetTemplatePage = () => {
 
   const totales = calcularTotales();
 
+  // Calcular total mano de obra desde la tabla de cálculo
+  const calcularTotalManoObra = useCallback(() => {
+    const precioHora = parseFloat(calculoManoObra.precioHora) || 0;
+    const numOperarios = parseFloat(calculoManoObra.numOperarios) || 0;
+    const horasJornada = parseFloat(calculoManoObra.horasJornada) || 0;
+    const numDias = parseFloat(calculoManoObra.numDias) || 0;
+    const dietasDia = parseFloat(calculoManoObra.dietasDia) || 0;
+    const alojamientoDia = parseFloat(calculoManoObra.alojamientoDia) || 0;
+    const horasExtra = parseFloat(calculoManoObra.horasExtra) || 0;
+    const operariosHoraExtra = parseFloat(calculoManoObra.operariosHoraExtra) || 0;
+
+    // Total horas normales = precio hora × nº horas × nº operarios × nº días
+    const totalHorasNormales = precioHora * horasJornada * numOperarios * numDias;
+    
+    // Total dietas = dietas × nº días × nº operarios
+    const totalDietas = dietasDia * numDias * numOperarios;
+    
+    // Total alojamiento = alojamiento × nº días × nº operarios
+    const totalAlojamiento = alojamientoDia * numDias * numOperarios;
+    
+    // Total horas extra = precio hora × horas extra × num operarios hora extra × nº días
+    const totalHorasExtra = precioHora * horasExtra * operariosHoraExtra * numDias;
+
+    return {
+      totalHorasNormales,
+      totalDietas,
+      totalAlojamiento,
+      totalHorasExtra,
+      total: totalHorasNormales + totalDietas + totalAlojamiento + totalHorasExtra,
+    };
+  }, [calculoManoObra]);
+
+  const totalesManoObra = calcularTotalManoObra();
+
+  // Actualizar mano de obra cuando cambie el cálculo
+  const handleCalculoManoObraChange = (field, value) => {
+    const newCalculo = { ...calculoManoObra, [field]: value };
+    setCalculoManoObra(newCalculo);
+    
+    // Recalcular y actualizar el precio de mano de obra
+    const precioHora = parseFloat(field === "precioHora" ? value : newCalculo.precioHora) || 0;
+    const numOperarios = parseFloat(field === "numOperarios" ? value : newCalculo.numOperarios) || 0;
+    const horasJornada = parseFloat(field === "horasJornada" ? value : newCalculo.horasJornada) || 0;
+    const numDias = parseFloat(field === "numDias" ? value : newCalculo.numDias) || 0;
+    const dietasDia = parseFloat(field === "dietasDia" ? value : newCalculo.dietasDia) || 0;
+    const alojamientoDia = parseFloat(field === "alojamientoDia" ? value : newCalculo.alojamientoDia) || 0;
+    const horasExtra = parseFloat(field === "horasExtra" ? value : newCalculo.horasExtra) || 0;
+    const operariosHoraExtra = parseFloat(field === "operariosHoraExtra" ? value : newCalculo.operariosHoraExtra) || 0;
+
+    const totalHorasNormales = precioHora * horasJornada * numOperarios * numDias;
+    const totalDietas = dietasDia * numDias * numOperarios;
+    const totalAlojamiento = alojamientoDia * numDias * numOperarios;
+    const totalHorasExtra = precioHora * horasExtra * operariosHoraExtra * numDias;
+    const total = totalHorasNormales + totalDietas + totalAlojamiento + totalHorasExtra;
+
+    // Actualizar mano de obra con el total calculado
+    if (total > 0) {
+      setManoObra({ ...manoObra, ud: "1", precio: total.toFixed(2) });
+    }
+  };
+
   // Handle material row change
   const handleMaterialChange = (index, field, value) => {
     const newMateriales = [...materiales];
