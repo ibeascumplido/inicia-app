@@ -312,17 +312,18 @@ async def delete_budget_template(template_id: str):
 
 @api_router.get("/dashboard/stats")
 async def get_dashboard_stats():
-    total_budgets = await db.budgets.count_documents({})
-    pending_budgets = await db.budgets.count_documents({"status": "pending"})
-    approved_budgets = await db.budgets.count_documents({"status": "approved"})
-    rejected_budgets = await db.budgets.count_documents({"status": "rejected"})
+    # Count from budget_templates collection now
+    total_budgets = await db.budget_templates.count_documents({})
+    pending_budgets = await db.budget_templates.count_documents({"status": "pending"})
+    approved_budgets = await db.budget_templates.count_documents({"status": "approved"})
+    rejected_budgets = await db.budget_templates.count_documents({"status": "rejected"})
     
     # Get total amount of approved budgets
     pipeline = [
         {"$match": {"status": "approved"}},
-        {"$group": {"_id": None, "total": {"$sum": "$amount"}}}
+        {"$group": {"_id": None, "total": {"$sum": "$total_con_iva"}}}
     ]
-    result = await db.budgets.aggregate(pipeline).to_list(1)
+    result = await db.budget_templates.aggregate(pipeline).to_list(1)
     total_approved_amount = result[0]["total"] if result else 0
     
     # Get upcoming events (today and future)
