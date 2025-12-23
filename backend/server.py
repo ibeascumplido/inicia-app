@@ -292,6 +292,75 @@ async def delete_event(event_id: str):
         raise HTTPException(status_code=404, detail="Event not found")
     return {"message": "Event deleted successfully"}
 
+# ============ OPERARIOS ENDPOINTS ============
+
+@api_router.get("/operarios", response_model=List[Operario])
+async def get_operarios():
+    operarios = await db.operarios.find({}, {"_id": 0}).sort("orden", 1).to_list(100)
+    return operarios
+
+@api_router.post("/operarios", response_model=Operario)
+async def create_operario(operario_data: OperarioCreate):
+    # Get next orden
+    count = await db.operarios.count_documents({})
+    operario = Operario(**operario_data.model_dump(), orden=count)
+    doc = operario.model_dump()
+    await db.operarios.insert_one(doc)
+    return operario
+
+@api_router.put("/operarios/{operario_id}", response_model=Operario)
+async def update_operario(operario_id: str, operario_data: OperarioCreate):
+    existing = await db.operarios.find_one({"id": operario_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Operario not found")
+    
+    update_data = operario_data.model_dump()
+    await db.operarios.update_one({"id": operario_id}, {"$set": update_data})
+    
+    updated = await db.operarios.find_one({"id": operario_id}, {"_id": 0})
+    return updated
+
+@api_router.delete("/operarios/{operario_id}")
+async def delete_operario(operario_id: str):
+    result = await db.operarios.delete_one({"id": operario_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Operario not found")
+    # Also delete related vacaciones
+    await db.vacaciones.delete_many({"operario_id": operario_id})
+    return {"message": "Operario deleted successfully"}
+
+# ============ VACACIONES ENDPOINTS ============
+
+@api_router.get("/vacaciones")
+async def get_vacaciones(month: Optional[str] = None):
+    query = {}
+    if month:
+        query["fecha"] = {"$regex": f"^{month}"}
+    vacaciones = await db.vacaciones.find(query, {"_id": 0}).to_list(10000)
+    return vacaciones
+
+@api_router.post("/vacaciones", response_model=Vacacion)
+async def create_vacacion(vacacion_data: VacacionCreate):
+    # Check if already exists
+    existing = await db.vacaciones.find_one({
+        "operario_id": vacacion_data.operario_id,
+        "fecha": vacacion_data.fecha
+    }, {"_id": 0})
+    if existing:
+        raise HTTPException(status_code=400, detail="Vacation already exists for this day")
+    
+    vacacion = Vacacion(**vacacion_data.model_dump())
+    doc = vacacion.model_dump()
+    await db.vacaciones.insert_one(doc)
+    return vacacion
+
+@api_router.delete("/vacaciones/{operario_id}/{fecha}")
+async def delete_vacacion(operario_id: str, fecha: str):
+    result = await db.vacaciones.delete_one({"operario_id": operario_id, "fecha": fecha})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Vacation not found")
+    return {"message": "Vacation deleted successfully"}
+
 # ============ BUDGET TEMPLATE ENDPOINTS ============
 
 @api_router.get("/budget-templates", response_model=List[BudgetTemplate])
