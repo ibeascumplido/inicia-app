@@ -110,6 +110,7 @@ class PorteItem(BaseModel):
     precio: str = ""
     iva: str = "21"
     precio_coste: str = ""
+    margen: str = "30"
 
 class BudgetTemplateBase(BaseModel):
     budget_number: str
