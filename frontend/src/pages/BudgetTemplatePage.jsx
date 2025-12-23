@@ -68,7 +68,7 @@ const BudgetTemplatePage = () => {
   ]);
 
   // Additional costs
-  const [porte, setPorte] = useState({ ud: "1", precio: "", iva: "21", precio_coste: "" });
+  const [porte, setPorte] = useState({ ud: "1", precio: "", iva: "21", precio_coste: "", margen: "30" });
   const [manoObra, setManoObra] = useState({ ud: "1", precio: "", iva: "21" });
 
   // Cálculo de mano de obra
