@@ -430,7 +430,7 @@ const BudgetTemplatePage = () => {
             variant="outline"
             onClick={() => setShowPreview(!showPreview)}
             data-testid="preview-btn"
-            className={showPreview ? "bg-indigo-100 border-indigo-300" : ""}
+            className={showPreview ? "bg-red-100 border-red-300" : ""}
           >
             <Printer className="w-4 h-4 mr-2" />
             {showPreview ? "Ocultar vista previa" : "Ver vista previa PDF"}
@@ -446,7 +446,7 @@ const BudgetTemplatePage = () => {
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="bg-indigo-600 hover:bg-indigo-700"
+            className="bg-red-500 hover:bg-red-600"
             data-testid="save-template-btn"
           >
             <Save className="w-4 h-4 mr-2" />
@@ -967,7 +967,7 @@ const BudgetTemplatePage = () => {
                     {formatCurrency(totales.totalBase)} €
                   </td>
                   <td className="px-2 py-3"></td>
-                  <td className="px-2 py-3 text-right font-mono font-bold text-indigo-600 text-lg">
+                  <td className="px-2 py-3 text-right font-mono font-bold text-red-500 text-lg">
                     {formatCurrency(totales.totalConIva)} €
                   </td>
                   <td className="bg-slate-200 print:hidden" data-pdf-hide="true"></td>
@@ -1002,10 +1002,10 @@ const BudgetTemplatePage = () => {
                 {formatCurrency(totales.totalIva)} €
               </span>
             </div>
-            <div className="flex justify-between py-3 bg-indigo-50 px-3 rounded-lg">
-              <span className="font-bold text-indigo-900">TOTAL IVA INCLUIDO</span>
+            <div className="flex justify-between py-3 bg-red-50 px-3 rounded-lg">
+              <span className="font-bold text-red-900">TOTAL IVA INCLUIDO</span>
               <span
-                className="font-mono font-bold text-indigo-600 text-lg"
+                className="font-mono font-bold text-red-500 text-lg"
                 data-testid="total-con-iva"
               >
                 {formatCurrency(totales.totalConIva)} €
