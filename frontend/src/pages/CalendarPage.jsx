@@ -748,6 +748,18 @@ const CalendarPage = () => {
               </div>
             </div>
             <div className="space-y-2">
+              <Label htmlFor="dias_libres">Días libres</Label>
+              <Input
+                id="dias_libres"
+                type="number"
+                value={newOperario.dias_libres}
+                onChange={(e) => setNewOperario({ ...newOperario, dias_libres: parseInt(e.target.value) || 0 })}
+                min="0"
+                className="w-32"
+                data-testid="operario-dias-libres-input"
+              />
+            </div>
+            <div className="space-y-2">
               <Label>Color</Label>
               <div className="flex items-center gap-2 flex-wrap">
                 {PRESET_COLORS.map((color) => (
