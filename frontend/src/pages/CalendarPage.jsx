@@ -307,7 +307,7 @@ const CalendarPage = () => {
       <Card className="border-slate-100 shadow-sm mb-6">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold font-['Manrope']">
-            Resumen de Vacaciones {currentDate.getFullYear()}
+            Resumen de Vacaciones y Días Libres {currentDate.getFullYear()}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -316,16 +316,33 @@ const CalendarPage = () => {
               <thead className="bg-slate-50 border-y border-slate-100">
                 <tr>
                   <th className="px-4 py-3 text-left font-semibold text-slate-600">Operario</th>
-                  <th className="px-4 py-3 text-center font-semibold text-slate-600">Días Disponibles</th>
-                  <th className="px-4 py-3 text-center font-semibold text-slate-600">Días Disfrutados</th>
-                  <th className="px-4 py-3 text-center font-semibold text-slate-600">Días Restantes</th>
-                  <th className="px-4 py-3 text-center font-semibold text-slate-600">Días Libres</th>
+                  <th className="px-4 py-3 text-center font-semibold text-orange-600" colSpan="3">
+                    <div className="flex items-center justify-center gap-1">
+                      <Palmtree className="w-4 h-4" />
+                      Vacaciones
+                    </div>
+                  </th>
+                  <th className="px-4 py-3 text-center font-semibold text-blue-600" colSpan="3">
+                    <div className="flex items-center justify-center gap-1">
+                      <Sun className="w-4 h-4" />
+                      Días Libres
+                    </div>
+                  </th>
+                </tr>
+                <tr className="bg-slate-50/50">
+                  <th className="px-4 py-2 text-left text-xs text-slate-500"></th>
+                  <th className="px-4 py-2 text-center text-xs text-slate-500">Disponibles</th>
+                  <th className="px-4 py-2 text-center text-xs text-slate-500">Disfrutados</th>
+                  <th className="px-4 py-2 text-center text-xs text-slate-500">Restantes</th>
+                  <th className="px-4 py-2 text-center text-xs text-slate-500">Disponibles</th>
+                  <th className="px-4 py-2 text-center text-xs text-slate-500">Disfrutados</th>
+                  <th className="px-4 py-2 text-center text-xs text-slate-500">Restantes</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {resumen.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="px-4 py-8 text-center text-slate-400">
+                    <td colSpan="7" className="px-4 py-8 text-center text-slate-400">
                       No hay operarios. Añade el primero desde "Gestionar Operarios".
                     </td>
                   </tr>
@@ -343,6 +360,7 @@ const CalendarPage = () => {
                           <span className="font-medium">{r.nombre}</span>
                         </div>
                       </td>
+                      {/* Vacaciones */}
                       <td className="px-4 py-3 text-center">
                         <Input
                           type="number"
@@ -355,7 +373,6 @@ const CalendarPage = () => {
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-orange-100 text-orange-700 font-medium">
-                          <Palmtree className="w-3 h-3" />
                           {r.dias_disfrutados}
                         </span>
                       </td>
@@ -370,10 +387,31 @@ const CalendarPage = () => {
                           {r.dias_restantes}
                         </span>
                       </td>
+                      {/* Días Libres */}
+                      <td className="px-4 py-3 text-center">
+                        <Input
+                          type="number"
+                          value={r.dias_libres_disponibles}
+                          onChange={(e) => updateDiasLibres(r.operario_id, e.target.value)}
+                          className="w-16 h-8 text-center mx-auto"
+                          min="0"
+                          data-testid={`dias-libres-disponibles-${r.operario_id}`}
+                        />
+                      </td>
                       <td className="px-4 py-3 text-center">
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">
-                          <Sun className="w-3 h-3" />
-                          {r.dias_libres}
+                          {r.dias_libres_disfrutados}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full font-bold ${
+                          r.dias_libres_restantes < 0 
+                            ? "bg-red-100 text-red-700" 
+                            : r.dias_libres_restantes <= 2 
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-green-100 text-green-700"
+                        }`}>
+                          {r.dias_libres_restantes}
                         </span>
                       </td>
                     </tr>
