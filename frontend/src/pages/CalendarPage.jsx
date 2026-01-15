@@ -263,7 +263,7 @@ const CalendarPage = () => {
       }
       setShowAddOperarioModal(false);
       setEditingOperario(null);
-      setNewOperario({ nombre: "", abreviatura: "", color: "#3B82F6", dias_vacaciones: 22 });
+      setNewOperario({ nombre: "", abreviatura: "", color: "#3B82F6", dias_vacaciones: 22, dias_libres: 6 });
       fetchOperarios();
       fetchResumen();
     } catch (error) {
