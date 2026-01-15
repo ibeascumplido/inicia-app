@@ -1229,18 +1229,25 @@ const BudgetTemplatePage = () => {
             <div className="p-8 bg-white">
               {/* Header */}
               <div className="flex justify-between items-start mb-6 border-b border-slate-200 pb-4">
-                <div>
-                  <h1 className="text-2xl font-bold text-indigo-600">PRESUPUESTO</h1>
-                  <p className="text-slate-500 text-sm mt-1">Documento comercial</p>
+                <div className="flex items-center gap-3">
+                  <img 
+                    src="https://customer-assets.emergentagent.com/job_presupuesto-app-27/artifacts/yunqqtir_logo-final.png" 
+                    alt="INICIA" 
+                    className="h-12 w-auto object-contain"
+                  />
+                  <div>
+                    <h1 className="text-xl font-bold text-red-500">PRESUPUESTO</h1>
+                    <p className="text-slate-500 text-xs mt-1">Documento comercial</p>
+                  </div>
                 </div>
-                <div className="text-right text-sm">
+                <div className="text-right text-xs">
                   <p><span className="text-slate-600">Presupuesto:</span> <span className="font-mono">{budgetNumber}</span></p>
                   <p><span className="text-slate-600">Fecha:</span> {budgetDate}</p>
                 </div>
               </div>
 
               {/* Client Info */}
-              <div className="mb-6 bg-slate-50 p-4 rounded-lg text-sm">
+              <div className="mb-6 bg-slate-50 p-3 rounded-lg text-xs">
                 <p><strong>Cliente:</strong> {cliente || "-"}</p>
                 <p><strong>Lugar de ejecución:</strong> {lugarEjecucion || "-"}</p>
                 <p><strong>Provincia:</strong> {provincia || "-"}</p>
@@ -1249,24 +1256,24 @@ const BudgetTemplatePage = () => {
               {/* Services */}
               {serviciosDescripcion && (
                 <div className="mb-6">
-                  <div className="bg-indigo-600 text-white px-3 py-2 rounded-t-lg text-sm font-medium">DESCRIPCIÓN DE LOS SERVICIOS</div>
-                  <div className="border border-t-0 border-slate-200 rounded-b-lg p-3 text-sm">{serviciosDescripcion}</div>
+                  <div className="bg-red-400 text-white px-3 py-2 rounded-t-lg text-xs font-medium">DESCRIPCIÓN DE LOS SERVICIOS</div>
+                  <div className="border border-t-0 border-slate-200 rounded-b-lg p-3 text-xs">{serviciosDescripcion}</div>
                 </div>
               )}
 
               {/* Materials Table - Solo columnas principales */}
               <div className="mb-6">
-                <div className="bg-indigo-600 text-white px-3 py-2 rounded-t-lg text-sm font-medium">DESCRIPCIÓN DE LOS MATERIALES</div>
+                <div className="bg-red-400 text-white px-3 py-2 rounded-t-lg text-xs font-medium">DESCRIPCIÓN DE LOS MATERIALES</div>
                 <div className="border border-t-0 border-slate-200 rounded-b-lg overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead className="bg-slate-100">
+                  <table className="w-full text-xs">
+                    <thead className="bg-red-50">
                       <tr>
-                        <th className="px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase">NOMBRE</th>
-                        <th className="px-3 py-2 text-center text-xs font-semibold text-slate-600 uppercase">UD</th>
-                        <th className="px-3 py-2 text-right text-xs font-semibold text-slate-600 uppercase">PRECIO</th>
-                        <th className="px-3 py-2 text-right text-xs font-semibold text-slate-600 uppercase">PRECIO SIN IVA</th>
-                        <th className="px-3 py-2 text-center text-xs font-semibold text-slate-600 uppercase">I.V.A</th>
-                        <th className="px-3 py-2 text-right text-xs font-semibold text-slate-600 uppercase">PRECIO CON IVA</th>
+                        <th className="px-3 py-2 text-left text-[10px] font-semibold text-red-700 uppercase w-[35%]">NOMBRE</th>
+                        <th className="px-3 py-2 text-center text-[10px] font-semibold text-red-700 uppercase">UD</th>
+                        <th className="px-3 py-2 text-right text-[10px] font-semibold text-red-700 uppercase">PRECIO</th>
+                        <th className="px-3 py-2 text-right text-[10px] font-semibold text-red-700 uppercase">PRECIO SIN IVA</th>
+                        <th className="px-3 py-2 text-center text-[10px] font-semibold text-red-700 uppercase">I.V.A</th>
+                        <th className="px-3 py-2 text-right text-[10px] font-semibold text-red-700 uppercase">PRECIO CON IVA</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -1275,43 +1282,43 @@ const BudgetTemplatePage = () => {
                         const importeConIva = calcularImporteConIva(m.ud, m.precio, m.iva);
                         return (
                           <tr key={i}>
-                            <td className="px-3 py-2">{m.nombre}</td>
-                            <td className="px-3 py-2 text-center">{m.ud}</td>
-                            <td className="px-3 py-2 text-right font-mono">{m.precio ? `${formatCurrency(parseFloat(m.precio))} €` : "-"}</td>
-                            <td className="px-3 py-2 text-right font-mono">{formatCurrency(importe)} €</td>
-                            <td className="px-3 py-2 text-center">{m.iva}%</td>
-                            <td className="px-3 py-2 text-right font-mono font-medium">{formatCurrency(importeConIva)} €</td>
+                            <td className="px-3 py-2 text-xs">{m.nombre}</td>
+                            <td className="px-3 py-2 text-center text-xs">{m.ud}</td>
+                            <td className="px-3 py-2 text-right font-mono text-xs">{m.precio ? `${formatCurrency(parseFloat(m.precio))} €` : "-"}</td>
+                            <td className="px-3 py-2 text-right font-mono text-xs">{formatCurrency(importe)} €</td>
+                            <td className="px-3 py-2 text-center text-xs">{m.iva}%</td>
+                            <td className="px-3 py-2 text-right font-mono font-medium text-xs">{formatCurrency(importeConIva)} €</td>
                           </tr>
                         );
                       })}
                       {/* Porte */}
                       {porte.precio && (
                         <tr className="bg-slate-50">
-                          <td className="px-3 py-2 font-medium">Porte</td>
-                          <td className="px-3 py-2 text-center">{porte.ud}</td>
-                          <td className="px-3 py-2 text-right font-mono">{formatCurrency(parseFloat(porte.precio))} €</td>
-                          <td className="px-3 py-2 text-right font-mono">{formatCurrency(calcularImporte(porte.ud, porte.precio))} €</td>
-                          <td className="px-3 py-2 text-center">{porte.iva}%</td>
-                          <td className="px-3 py-2 text-right font-mono font-medium">{formatCurrency(calcularImporteConIva(porte.ud, porte.precio, porte.iva))} €</td>
+                          <td className="px-3 py-2 font-medium text-xs">Porte</td>
+                          <td className="px-3 py-2 text-center text-xs">{porte.ud}</td>
+                          <td className="px-3 py-2 text-right font-mono text-xs">{formatCurrency(parseFloat(porte.precio))} €</td>
+                          <td className="px-3 py-2 text-right font-mono text-xs">{formatCurrency(calcularImporte(porte.ud, porte.precio))} €</td>
+                          <td className="px-3 py-2 text-center text-xs">{porte.iva}%</td>
+                          <td className="px-3 py-2 text-right font-mono font-medium text-xs">{formatCurrency(calcularImporteConIva(porte.ud, porte.precio, porte.iva))} €</td>
                         </tr>
                       )}
                       {/* Mano de obra */}
                       {manoObra.precio && (
                         <tr className="bg-slate-50">
-                          <td className="px-3 py-2 font-medium">Mano de obra</td>
-                          <td className="px-3 py-2 text-center">{manoObra.ud}</td>
-                          <td className="px-3 py-2 text-right font-mono">{formatCurrency(parseFloat(manoObra.precio))} €</td>
-                          <td className="px-3 py-2 text-right font-mono">{formatCurrency(calcularImporte(manoObra.ud, manoObra.precio))} €</td>
-                          <td className="px-3 py-2 text-center">{manoObra.iva}%</td>
-                          <td className="px-3 py-2 text-right font-mono font-medium">{formatCurrency(calcularImporteConIva(manoObra.ud, manoObra.precio, manoObra.iva))} €</td>
+                          <td className="px-3 py-2 font-medium text-xs">Mano de obra</td>
+                          <td className="px-3 py-2 text-center text-xs">{manoObra.ud}</td>
+                          <td className="px-3 py-2 text-right font-mono text-xs">{formatCurrency(parseFloat(manoObra.precio))} €</td>
+                          <td className="px-3 py-2 text-right font-mono text-xs">{formatCurrency(calcularImporte(manoObra.ud, manoObra.precio))} €</td>
+                          <td className="px-3 py-2 text-center text-xs">{manoObra.iva}%</td>
+                          <td className="px-3 py-2 text-right font-mono font-medium text-xs">{formatCurrency(calcularImporteConIva(manoObra.ud, manoObra.precio, manoObra.iva))} €</td>
                         </tr>
                       )}
                       {/* Totals row */}
                       <tr className="bg-slate-200 font-semibold">
-                        <td colSpan="3" className="px-3 py-2 text-right">TOTALES:</td>
-                        <td className="px-3 py-2 text-right font-mono">{formatCurrency(totales.totalBase)} €</td>
+                        <td colSpan="3" className="px-3 py-2 text-right text-xs">TOTALES:</td>
+                        <td className="px-3 py-2 text-right font-mono text-xs">{formatCurrency(totales.totalBase)} €</td>
                         <td className="px-3 py-2"></td>
-                        <td className="px-3 py-2 text-right font-mono text-indigo-600">{formatCurrency(totales.totalConIva)} €</td>
+                        <td className="px-3 py-2 text-right font-mono text-red-500 text-xs">{formatCurrency(totales.totalConIva)} €</td>
                       </tr>
                     </tbody>
                   </table>
@@ -1320,7 +1327,7 @@ const BudgetTemplatePage = () => {
 
               {/* Totals Summary */}
               <div className="flex justify-end mb-6">
-                <div className="w-72 space-y-2 text-sm">
+                <div className="w-72 space-y-2 text-xs">
                   <div className="flex justify-between py-2 border-b border-slate-200">
                     <span className="font-medium">TOTAL PRESUPUESTO (sin IVA)</span>
                     <span className="font-mono font-medium">{formatCurrency(totales.totalBase)} €</span>
@@ -1329,9 +1336,9 @@ const BudgetTemplatePage = () => {
                     <span className="text-slate-600">+ I.V.A</span>
                     <span className="font-mono">{formatCurrency(totales.totalIva)} €</span>
                   </div>
-                  <div className="flex justify-between py-3 bg-indigo-50 px-3 rounded-lg">
-                    <span className="font-bold text-indigo-900">TOTAL IVA INCLUIDO</span>
-                    <span className="font-mono font-bold text-indigo-600 text-lg">{formatCurrency(totales.totalConIva)} €</span>
+                  <div className="flex justify-between py-3 bg-red-50 px-3 rounded-lg">
+                    <span className="font-bold text-red-900">TOTAL IVA INCLUIDO</span>
+                    <span className="font-mono font-bold text-red-500">{formatCurrency(totales.totalConIva)} €</span>
                   </div>
                 </div>
               </div>
@@ -1340,14 +1347,14 @@ const BudgetTemplatePage = () => {
               {observaciones && (
                 <div className="mb-6">
                   <div className="bg-orange-100 border border-orange-200 rounded-lg p-4">
-                    <h3 className="font-semibold text-orange-800 mb-2 text-sm">* OBSERVACIONES</h3>
-                    <p className="text-sm whitespace-pre-wrap">{observaciones}</p>
+                    <h3 className="font-semibold text-orange-800 mb-2 text-xs">* OBSERVACIONES</h3>
+                    <p className="text-xs whitespace-pre-wrap">{observaciones}</p>
                   </div>
                 </div>
               )}
 
               {/* Signature */}
-              <div className="border-t border-slate-200 pt-6 text-center text-sm">
+              <div className="border-t border-slate-200 pt-6 text-center text-xs">
                 <p className="text-slate-600 mb-4">Fdo. _________________________</p>
                 <p className="text-slate-500">Director Gerente</p>
               </div>
