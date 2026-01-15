@@ -82,6 +82,7 @@ class OperarioBase(BaseModel):
     abreviatura: str  # Max 2-3 caracteres
     color: str  # Color hex como #FF0000
     dias_vacaciones: int = 22  # Días disponibles de vacaciones
+    dias_libres: int = 6  # Días libres disponibles
 
 class OperarioCreate(OperarioBase):
     pass
@@ -91,6 +92,7 @@ class OperarioUpdate(BaseModel):
     abreviatura: Optional[str] = None
     color: Optional[str] = None
     dias_vacaciones: Optional[int] = None
+    dias_libres: Optional[int] = None
 
 class Operario(OperarioBase):
     model_config = ConfigDict(extra="ignore")
