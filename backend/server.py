@@ -395,17 +395,24 @@ async def get_vacaciones_resumen(year: Optional[int] = None):
             "tipo": "libre"
         })
         
-        dias_disponibles = op.get("dias_vacaciones", 22)
+        # Días de vacaciones
+        dias_vacaciones_disponibles = op.get("dias_vacaciones", 22)
+        # Días libres (mismo tratamiento que vacaciones)
+        dias_libres_disponibles = op.get("dias_libres", 6)
         
         resumen.append({
             "operario_id": op["id"],
             "nombre": op["nombre"],
             "abreviatura": op["abreviatura"],
             "color": op["color"],
-            "dias_disponibles": dias_disponibles,
+            # Vacaciones
+            "dias_disponibles": dias_vacaciones_disponibles,
             "dias_disfrutados": vacaciones_count,
-            "dias_restantes": dias_disponibles - vacaciones_count,
-            "dias_libres": libres_count,
+            "dias_restantes": dias_vacaciones_disponibles - vacaciones_count,
+            # Días libres (con contadores completos)
+            "dias_libres_disponibles": dias_libres_disponibles,
+            "dias_libres_disfrutados": libres_count,
+            "dias_libres_restantes": dias_libres_disponibles - libres_count,
         })
     
     return resumen
