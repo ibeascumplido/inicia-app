@@ -651,7 +651,7 @@ const CalendarPage = () => {
                     </div>
                     <div>
                       <span className="font-medium">{op.nombre}</span>
-                      <p className="text-xs text-slate-500">{op.dias_vacaciones || 22} días de vacaciones</p>
+                      <p className="text-xs text-slate-500">{op.dias_vacaciones || 22} días vacaciones · {op.dias_libres || 6} días libres</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -665,6 +665,7 @@ const CalendarPage = () => {
                           abreviatura: op.abreviatura,
                           color: op.color,
                           dias_vacaciones: op.dias_vacaciones || 22,
+                          dias_libres: op.dias_libres || 6,
                         });
                         setShowAddOperarioModal(true);
                       }}
