@@ -5,11 +5,12 @@ import {
   ChevronRight,
   Plus,
   Settings,
-  X,
   Trash2,
   Edit2,
+  Sun,
+  Palmtree,
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,7 +42,6 @@ const MONTHS = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
 
-// Colores predefinidos para elegir
 const PRESET_COLORS = [
   "#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899",
   "#06B6D4", "#84CC16", "#F97316", "#6366F1", "#14B8A6", "#A855F7",
@@ -51,7 +51,11 @@ const CalendarPage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [operarios, setOperarios] = useState([]);
   const [vacaciones, setVacaciones] = useState([]);
+  const [resumen, setResumen] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Modo: "vacacion" o "libre"
+  const [markMode, setMarkMode] = useState("vacacion");
   
   // Modal states
   const [showOperariosModal, setShowOperariosModal] = useState(false);
@@ -59,7 +63,7 @@ const CalendarPage = () => {
   const [editingOperario, setEditingOperario] = useState(null);
   const [deleteOperarioConfirm, setDeleteOperarioConfirm] = useState(null);
   
-  // Selected operario for marking vacations
+  // Selected operario for marking
   const [selectedOperario, setSelectedOperario] = useState(null);
   
   // New operario form
@@ -67,6 +71,7 @@ const CalendarPage = () => {
     nombre: "",
     abreviatura: "",
     color: "#3B82F6",
+    dias_vacaciones: 22,
   });
 
   const fetchOperarios = useCallback(async () => {
@@ -93,13 +98,24 @@ const CalendarPage = () => {
     }
   }, [currentDate]);
 
+  const fetchResumen = useCallback(async () => {
+    try {
+      const year = currentDate.getFullYear();
+      const response = await axios.get(`${API}/vacaciones/resumen`, { params: { year } });
+      setResumen(response.data);
+    } catch (error) {
+      console.error("Error fetching resumen:", error);
+    }
+  }, [currentDate]);
+
   useEffect(() => {
     fetchOperarios();
   }, []);
 
   useEffect(() => {
     fetchVacaciones();
-  }, [currentDate, fetchVacaciones]);
+    fetchResumen();
+  }, [currentDate, fetchVacaciones, fetchResumen]);
 
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
@@ -113,7 +129,6 @@ const CalendarPage = () => {
 
     const days = [];
 
-    // Previous month days
     const prevMonth = new Date(year, month, 0);
     for (let i = startDay - 1; i >= 0; i--) {
       days.push({
@@ -123,7 +138,6 @@ const CalendarPage = () => {
       });
     }
 
-    // Current month days
     for (let i = 1; i <= daysInMonth; i++) {
       days.push({
         date: i,
@@ -132,7 +146,6 @@ const CalendarPage = () => {
       });
     }
 
-    // Next month days
     const remaining = 42 - days.length;
     for (let i = 1; i <= remaining; i++) {
       days.push({
@@ -166,31 +179,59 @@ const CalendarPage = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   };
 
-  // Check if operario has vacation on date
-  const hasVacation = (operarioId, dateStr) => {
-    return vacaciones.some(v => v.operario_id === operarioId && v.fecha === dateStr);
+  // Get vacation info for operario on date
+  const getVacacionInfo = (operarioId, dateStr) => {
+    return vacaciones.find(v => v.operario_id === operarioId && v.fecha === dateStr);
   };
 
-  // Toggle vacation for operario on date
-  const toggleVacation = async (operario, dateStr) => {
+  // Toggle vacation/libre for operario on date
+  const toggleVacacion = async (operario, dateStr) => {
     if (!operario) return;
     
     try {
-      if (hasVacation(operario.id, dateStr)) {
-        // Remove vacation
-        await axios.delete(`${API}/vacaciones/${operario.id}/${dateStr}`);
-        setVacaciones(prev => prev.filter(v => !(v.operario_id === operario.id && v.fecha === dateStr)));
+      const existing = getVacacionInfo(operario.id, dateStr);
+      
+      if (existing) {
+        // If same type, remove it
+        if (existing.tipo === markMode) {
+          await axios.delete(`${API}/vacaciones/${operario.id}/${dateStr}`);
+          setVacaciones(prev => prev.filter(v => !(v.operario_id === operario.id && v.fecha === dateStr)));
+        } else {
+          // Different type: remove old, add new
+          await axios.delete(`${API}/vacaciones/${operario.id}/${dateStr}`);
+          const response = await axios.post(`${API}/vacaciones`, {
+            operario_id: operario.id,
+            fecha: dateStr,
+            tipo: markMode,
+          });
+          setVacaciones(prev => [
+            ...prev.filter(v => !(v.operario_id === operario.id && v.fecha === dateStr)),
+            response.data
+          ]);
+        }
       } else {
-        // Add vacation
-        await axios.post(`${API}/vacaciones`, {
+        // Add new
+        const response = await axios.post(`${API}/vacaciones`, {
           operario_id: operario.id,
           fecha: dateStr,
+          tipo: markMode,
         });
-        setVacaciones(prev => [...prev, { operario_id: operario.id, fecha: dateStr }]);
+        setVacaciones(prev => [...prev, response.data]);
       }
+      fetchResumen();
     } catch (error) {
       console.error("Error toggling vacation:", error);
-      toast.error("Error al actualizar vacaciones");
+      toast.error("Error al actualizar");
+    }
+  };
+
+  // Update dias_vacaciones for operario
+  const updateDiasVacaciones = async (operarioId, dias) => {
+    try {
+      await axios.put(`${API}/operarios/${operarioId}`, { dias_vacaciones: parseInt(dias) || 0 });
+      fetchResumen();
+    } catch (error) {
+      console.error("Error updating dias:", error);
     }
   };
 
@@ -211,8 +252,9 @@ const CalendarPage = () => {
       }
       setShowAddOperarioModal(false);
       setEditingOperario(null);
-      setNewOperario({ nombre: "", abreviatura: "", color: "#3B82F6" });
+      setNewOperario({ nombre: "", abreviatura: "", color: "#3B82F6", dias_vacaciones: 22 });
       fetchOperarios();
+      fetchResumen();
     } catch (error) {
       console.error("Error saving operario:", error);
       toast.error("Error al guardar operario");
@@ -232,6 +274,7 @@ const CalendarPage = () => {
       }
       fetchOperarios();
       fetchVacaciones();
+      fetchResumen();
     } catch (error) {
       console.error("Error deleting operario:", error);
       toast.error("Error al eliminar operario");
@@ -259,31 +302,147 @@ const CalendarPage = () => {
         </Button>
       </div>
 
-      {/* Selector de operario activo */}
+      {/* Tabla resumen de vacaciones */}
+      <Card className="border-slate-100 shadow-sm mb-6">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold font-['Manrope']">
+            Resumen de Vacaciones {currentDate.getFullYear()}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 border-y border-slate-100">
+                <tr>
+                  <th className="px-4 py-3 text-left font-semibold text-slate-600">Operario</th>
+                  <th className="px-4 py-3 text-center font-semibold text-slate-600">Días Disponibles</th>
+                  <th className="px-4 py-3 text-center font-semibold text-slate-600">Días Disfrutados</th>
+                  <th className="px-4 py-3 text-center font-semibold text-slate-600">Días Restantes</th>
+                  <th className="px-4 py-3 text-center font-semibold text-slate-600">Días Libres</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {resumen.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="px-4 py-8 text-center text-slate-400">
+                      No hay operarios. Añade el primero desde "Gestionar Operarios".
+                    </td>
+                  </tr>
+                ) : (
+                  resumen.map((r) => (
+                    <tr key={r.operario_id} className="hover:bg-slate-50">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-6 h-6 rounded flex items-center justify-center text-white text-xs font-bold"
+                            style={{ backgroundColor: r.color }}
+                          >
+                            {r.abreviatura}
+                          </div>
+                          <span className="font-medium">{r.nombre}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <Input
+                          type="number"
+                          value={r.dias_disponibles}
+                          onChange={(e) => updateDiasVacaciones(r.operario_id, e.target.value)}
+                          className="w-16 h-8 text-center mx-auto"
+                          min="0"
+                          data-testid={`dias-disponibles-${r.operario_id}`}
+                        />
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-orange-100 text-orange-700 font-medium">
+                          <Palmtree className="w-3 h-3" />
+                          {r.dias_disfrutados}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full font-bold ${
+                          r.dias_restantes < 0 
+                            ? "bg-red-100 text-red-700" 
+                            : r.dias_restantes <= 5 
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-green-100 text-green-700"
+                        }`}>
+                          {r.dias_restantes}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">
+                          <Sun className="w-3 h-3" />
+                          {r.dias_libres}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Selector de operario y modo */}
       {operarios.length > 0 && (
-        <Card className="border-slate-100 shadow-sm mb-6">
+        <Card className="border-slate-100 shadow-sm mb-4">
           <CardContent className="p-4">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm text-slate-600 mr-2">Selecciona operario para marcar vacaciones:</span>
-              {operarios.map((op) => (
-                <button
-                  key={op.id}
-                  onClick={() => setSelectedOperario(op)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 transition-all ${
-                    selectedOperario?.id === op.id
-                      ? "border-slate-900 shadow-md"
-                      : "border-transparent hover:border-slate-300"
-                  }`}
-                  style={{ backgroundColor: op.color + "20" }}
-                  data-testid={`select-operario-${op.id}`}
-                >
-                  <div
-                    className="w-4 h-4 rounded"
-                    style={{ backgroundColor: op.color }}
-                  />
-                  <span className="text-sm font-medium">{op.nombre}</span>
-                </button>
-              ))}
+            <div className="flex flex-col gap-4">
+              {/* Modo de marcado */}
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-slate-600">Modo:</span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setMarkMode("vacacion")}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all ${
+                      markMode === "vacacion"
+                        ? "border-orange-500 bg-orange-50 text-orange-700"
+                        : "border-slate-200 hover:border-slate-300"
+                    }`}
+                    data-testid="mode-vacacion"
+                  >
+                    <Palmtree className="w-4 h-4" />
+                    <span className="font-medium">Vacaciones</span>
+                  </button>
+                  <button
+                    onClick={() => setMarkMode("libre")}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all ${
+                      markMode === "libre"
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : "border-slate-200 hover:border-slate-300"
+                    }`}
+                    data-testid="mode-libre"
+                  >
+                    <Sun className="w-4 h-4" />
+                    <span className="font-medium">Día Libre</span>
+                  </button>
+                </div>
+              </div>
+              
+              {/* Selector de operario */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm text-slate-600">Operario:</span>
+                {operarios.map((op) => (
+                  <button
+                    key={op.id}
+                    onClick={() => setSelectedOperario(op)}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 transition-all ${
+                      selectedOperario?.id === op.id
+                        ? "border-slate-900 shadow-md"
+                        : "border-transparent hover:border-slate-300"
+                    }`}
+                    style={{ backgroundColor: op.color + "20" }}
+                    data-testid={`select-operario-${op.id}`}
+                  >
+                    <div
+                      className="w-4 h-4 rounded"
+                      style={{ backgroundColor: op.color }}
+                    />
+                    <span className="text-sm font-medium">{op.nombre}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -306,7 +465,7 @@ const CalendarPage = () => {
         </CardContent>
       </Card>
 
-      {/* Leyenda de operarios */}
+      {/* Leyenda */}
       {operarios.length > 0 && (
         <div className="flex items-center gap-4 mb-4 flex-wrap">
           {operarios.map((op) => (
@@ -320,6 +479,16 @@ const CalendarPage = () => {
               <span className="text-xs text-slate-600">{op.nombre}</span>
             </div>
           ))}
+          <div className="border-l border-slate-300 pl-4 ml-2 flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              <div className="w-4 h-4 rounded bg-blue-500"></div>
+              <span className="text-xs text-slate-600">= Vacaciones</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-4 h-4 rounded bg-blue-500 border-2 border-slate-900"></div>
+              <span className="text-xs text-slate-600">= Día Libre</span>
+            </div>
+          </div>
         </div>
       )}
 
@@ -368,28 +537,32 @@ const CalendarPage = () => {
 
                   {/* Grid of 12 slots (4x3) */}
                   <div className="grid grid-cols-4 gap-0.5">
-                    {operarios.slice(0, 12).map((op, slotIndex) => {
-                      const hasVac = hasVacation(op.id, dateStr);
+                    {operarios.slice(0, 12).map((op) => {
+                      const vacInfo = getVacacionInfo(op.id, dateStr);
+                      const isLibre = vacInfo?.tipo === "libre";
+                      const isVacacion = vacInfo?.tipo === "vacacion";
+                      const hasAny = isLibre || isVacacion;
+                      
                       return (
                         <button
                           key={op.id}
-                          onClick={() => toggleVacation(op, dateStr)}
-                          className={`aspect-square rounded-sm transition-all hover:scale-110 hover:z-10 relative group ${
-                            hasVac ? "" : "bg-slate-200 hover:bg-slate-300"
-                          }`}
-                          style={hasVac ? { backgroundColor: op.color } : {}}
-                          title={`${op.nombre} - ${hasVac ? "Vacaciones" : "Click para marcar"}`}
+                          onClick={() => toggleVacacion(op, dateStr)}
+                          className={`aspect-square rounded-sm transition-all hover:scale-110 hover:z-10 relative ${
+                            hasAny ? "" : "bg-slate-200 hover:bg-slate-300"
+                          } ${isLibre ? "ring-2 ring-slate-900 ring-inset" : ""}`}
+                          style={hasAny ? { backgroundColor: op.color } : {}}
+                          title={`${op.nombre} - ${isVacacion ? "Vacaciones" : isLibre ? "Día Libre" : "Click para marcar"}`}
                           data-testid={`slot-${dateStr}-${op.id}`}
                         >
-                          {hasVac && (
-                            <span className="absolute inset-0 flex items-center justify-center text-white text-[8px] font-bold">
+                          {hasAny && (
+                            <span className="absolute inset-0 flex items-center justify-center text-white text-[8px] font-bold drop-shadow-sm">
                               {op.abreviatura}
                             </span>
                           )}
                         </button>
                       );
                     })}
-                    {/* Fill empty slots if less than 12 operarios */}
+                    {/* Fill empty slots */}
                     {Array.from({ length: Math.max(0, 12 - operarios.length) }).map((_, i) => (
                       <div
                         key={`empty-${i}`}
@@ -427,7 +600,10 @@ const CalendarPage = () => {
                     >
                       {op.abreviatura}
                     </div>
-                    <span className="font-medium">{op.nombre}</span>
+                    <div>
+                      <span className="font-medium">{op.nombre}</span>
+                      <p className="text-xs text-slate-500">{op.dias_vacaciones || 22} días de vacaciones</p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
@@ -439,6 +615,7 @@ const CalendarPage = () => {
                           nombre: op.nombre,
                           abreviatura: op.abreviatura,
                           color: op.color,
+                          dias_vacaciones: op.dias_vacaciones || 22,
                         });
                         setShowAddOperarioModal(true);
                       }}
@@ -463,7 +640,7 @@ const CalendarPage = () => {
             <Button
               onClick={() => {
                 setEditingOperario(null);
-                setNewOperario({ nombre: "", abreviatura: "", color: "#3B82F6" });
+                setNewOperario({ nombre: "", abreviatura: "", color: "#3B82F6", dias_vacaciones: 22 });
                 setShowAddOperarioModal(true);
               }}
               className="bg-indigo-600 hover:bg-indigo-700"
@@ -496,16 +673,29 @@ const CalendarPage = () => {
                 data-testid="operario-nombre-input"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="abreviatura">Abreviatura (máx. 3 caracteres)</Label>
-              <Input
-                id="abreviatura"
-                value={newOperario.abreviatura}
-                onChange={(e) => setNewOperario({ ...newOperario, abreviatura: e.target.value.slice(0, 3).toUpperCase() })}
-                placeholder="Ej: JUA"
-                maxLength={3}
-                data-testid="operario-abreviatura-input"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="abreviatura">Abreviatura (máx. 3)</Label>
+                <Input
+                  id="abreviatura"
+                  value={newOperario.abreviatura}
+                  onChange={(e) => setNewOperario({ ...newOperario, abreviatura: e.target.value.slice(0, 3).toUpperCase() })}
+                  placeholder="Ej: JUA"
+                  maxLength={3}
+                  data-testid="operario-abreviatura-input"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="dias">Días de vacaciones</Label>
+                <Input
+                  id="dias"
+                  type="number"
+                  value={newOperario.dias_vacaciones}
+                  onChange={(e) => setNewOperario({ ...newOperario, dias_vacaciones: parseInt(e.target.value) || 0 })}
+                  min="0"
+                  data-testid="operario-dias-input"
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Color</Label>
@@ -522,7 +712,7 @@ const CalendarPage = () => {
                 ))}
               </div>
               <div className="flex items-center gap-2 mt-2">
-                <Label htmlFor="customColor" className="text-xs text-slate-500">Color personalizado:</Label>
+                <Label htmlFor="customColor" className="text-xs text-slate-500">Personalizado:</Label>
                 <Input
                   id="customColor"
                   type="color"
@@ -541,7 +731,10 @@ const CalendarPage = () => {
               >
                 {newOperario.abreviatura || "?"}
               </div>
-              <span className="font-medium">{newOperario.nombre || "Nombre"}</span>
+              <div>
+                <span className="font-medium">{newOperario.nombre || "Nombre"}</span>
+                <p className="text-xs text-slate-500">{newOperario.dias_vacaciones} días</p>
+              </div>
             </div>
           </div>
 
