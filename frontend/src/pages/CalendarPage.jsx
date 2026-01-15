@@ -72,6 +72,7 @@ const CalendarPage = () => {
     abreviatura: "",
     color: "#3B82F6",
     dias_vacaciones: 22,
+    dias_libres: 6,
   });
 
   const fetchOperarios = useCallback(async () => {
