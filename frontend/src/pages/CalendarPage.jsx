@@ -236,6 +236,16 @@ const CalendarPage = () => {
     }
   };
 
+  // Update dias_libres for operario
+  const updateDiasLibres = async (operarioId, dias) => {
+    try {
+      await axios.put(`${API}/operarios/${operarioId}`, { dias_libres: parseInt(dias) || 0 });
+      fetchResumen();
+    } catch (error) {
+      console.error("Error updating dias libres:", error);
+    }
+  };
+
   // Add/Edit operario
   const handleSaveOperario = async () => {
     if (!newOperario.nombre.trim() || !newOperario.abreviatura.trim()) {
