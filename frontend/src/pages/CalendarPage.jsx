@@ -795,7 +795,7 @@ const CalendarPage = () => {
               </div>
               <div>
                 <span className="font-medium">{newOperario.nombre || "Nombre"}</span>
-                <p className="text-xs text-slate-500">{newOperario.dias_vacaciones} días</p>
+                <p className="text-xs text-slate-500">{newOperario.dias_vacaciones} días vacaciones · {newOperario.dias_libres} días libres</p>
               </div>
             </div>
           </div>
