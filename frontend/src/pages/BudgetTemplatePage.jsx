@@ -563,7 +563,7 @@ const BudgetTemplatePage = () => {
               variant="ghost"
               size="sm"
               onClick={addMaterialRow}
-              className="text-white hover:bg-indigo-500 print:hidden" data-pdf-hide="true"
+              className="text-white hover:bg-red-300 print:hidden" data-pdf-hide="true"
               data-testid="add-material-btn"
             >
               <Plus className="w-4 h-4 mr-1" />
@@ -571,26 +571,26 @@ const BudgetTemplatePage = () => {
             </Button>
           </div>
           <div className="border border-t-0 border-slate-200 rounded-b-lg overflow-x-auto">
-            <table className="w-full" data-testid="materials-table">
-              <thead className="bg-slate-100">
+            <table className="w-full text-[11px]" data-testid="materials-table">
+              <thead className="bg-red-50">
                 <tr>
                   {/* Columnas principales (se imprimen) */}
-                  <th className="px-2 py-2 text-left text-xs font-semibold text-slate-600 uppercase w-[22%]">
+                  <th className="px-2 py-2 text-left text-[10px] font-semibold text-red-700 uppercase w-[30%]">
                     NOMBRE
                   </th>
-                  <th className="px-2 py-2 text-center text-xs font-semibold text-slate-600 uppercase w-[5%]">
+                  <th className="px-2 py-2 text-center text-[10px] font-semibold text-red-700 uppercase w-[5%]">
                     UD
                   </th>
-                  <th className="px-2 py-2 text-right text-xs font-semibold text-slate-600 uppercase w-[8%]">
+                  <th className="px-2 py-2 text-right text-[10px] font-semibold text-red-700 uppercase w-[8%]">
                     PRECIO
                   </th>
-                  <th className="px-2 py-2 text-right text-xs font-semibold text-slate-600 uppercase w-[9%]">
+                  <th className="px-2 py-2 text-right text-[10px] font-semibold text-red-700 uppercase w-[9%]">
                     PRECIO SIN IVA
                   </th>
-                  <th className="px-2 py-2 text-center text-xs font-semibold text-slate-600 uppercase w-[5%]">
+                  <th className="px-2 py-2 text-center text-[10px] font-semibold text-red-700 uppercase w-[5%]">
                     I.V.A
                   </th>
-                  <th className="px-2 py-2 text-right text-xs font-semibold text-slate-600 uppercase w-[10%]">
+                  <th className="px-2 py-2 text-right text-[10px] font-semibold text-red-700 uppercase w-[10%]">
                     PRECIO CON IVA
                   </th>
                   
@@ -598,22 +598,22 @@ const BudgetTemplatePage = () => {
                   <th className="px-1 py-2 bg-slate-200 w-[1px] print:hidden" data-pdf-hide="true"></th>
                   
                   {/* Columnas en minúscula - solo edición */}
-                  <th className="px-2 py-2 text-right text-xs font-normal text-slate-500 lowercase w-[7%] print:hidden bg-amber-50" data-pdf-hide="true">
+                  <th className="px-2 py-2 text-right text-[10px] font-normal text-slate-500 lowercase w-[7%] print:hidden bg-amber-50" data-pdf-hide="true">
                     precio coste
                   </th>
-                  <th className="px-2 py-2 text-right text-xs font-normal text-slate-500 lowercase w-[7%] print:hidden bg-amber-50" data-pdf-hide="true">
+                  <th className="px-2 py-2 text-right text-[10px] font-normal text-slate-500 lowercase w-[7%] print:hidden bg-amber-50" data-pdf-hide="true">
                     coste total
                   </th>
-                  <th className="px-2 py-2 text-center text-xs font-normal text-slate-500 lowercase w-[5%] print:hidden bg-amber-50" data-pdf-hide="true">
+                  <th className="px-2 py-2 text-center text-[10px] font-normal text-slate-500 lowercase w-[5%] print:hidden bg-amber-50" data-pdf-hide="true">
                     margen %
                   </th>
-                  <th className="px-2 py-2 text-center text-xs font-normal text-slate-500 lowercase w-[5%] print:hidden bg-amber-50" data-pdf-hide="true">
+                  <th className="px-2 py-2 text-center text-[10px] font-normal text-slate-500 lowercase w-[5%] print:hidden bg-amber-50" data-pdf-hide="true">
                     litros
                   </th>
-                  <th className="px-2 py-2 text-center text-xs font-normal text-slate-500 lowercase w-[5%] print:hidden bg-amber-50" data-pdf-hide="true">
+                  <th className="px-2 py-2 text-center text-[10px] font-normal text-slate-500 lowercase w-[5%] print:hidden bg-amber-50" data-pdf-hide="true">
                     altura
                   </th>
-                  <th className="px-2 py-2 text-left text-xs font-normal text-slate-500 lowercase w-[10%] print:hidden bg-amber-50" data-pdf-hide="true">
+                  <th className="px-2 py-2 text-left text-[10px] font-normal text-slate-500 lowercase w-[10%] print:hidden bg-amber-50" data-pdf-hide="true">
                     notas
                   </th>
                   <th className="px-2 py-2 w-[3%] print:hidden" data-pdf-hide="true"></th>
