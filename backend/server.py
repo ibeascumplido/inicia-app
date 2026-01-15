@@ -370,6 +370,44 @@ async def delete_vacacion(operario_id: str, fecha: str):
         raise HTTPException(status_code=404, detail="Vacation not found")
     return {"message": "Vacation deleted successfully"}
 
+@api_router.get("/vacaciones/resumen")
+async def get_vacaciones_resumen(year: Optional[int] = None):
+    if not year:
+        year = datetime.now().year
+    
+    # Get all operarios
+    operarios = await db.operarios.find({}, {"_id": 0}).sort("orden", 1).to_list(100)
+    
+    resumen = []
+    for op in operarios:
+        # Count vacaciones for this year
+        vacaciones_count = await db.vacaciones.count_documents({
+            "operario_id": op["id"],
+            "fecha": {"$regex": f"^{year}"},
+            "tipo": "vacacion"
+        })
+        # Count dias libres for this year
+        libres_count = await db.vacaciones.count_documents({
+            "operario_id": op["id"],
+            "fecha": {"$regex": f"^{year}"},
+            "tipo": "libre"
+        })
+        
+        dias_disponibles = op.get("dias_vacaciones", 22)
+        
+        resumen.append({
+            "operario_id": op["id"],
+            "nombre": op["nombre"],
+            "abreviatura": op["abreviatura"],
+            "color": op["color"],
+            "dias_disponibles": dias_disponibles,
+            "dias_disfrutados": vacaciones_count,
+            "dias_restantes": dias_disponibles - vacaciones_count,
+            "dias_libres": libres_count,
+        })
+    
+    return resumen
+
 # ============ BUDGET TEMPLATE ENDPOINTS ============
 
 @api_router.get("/budget-templates", response_model=List[BudgetTemplate])
