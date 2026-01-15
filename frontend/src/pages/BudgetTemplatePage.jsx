@@ -464,11 +464,19 @@ const BudgetTemplatePage = () => {
         >
         {/* Header */}
         <div className="flex justify-between items-start mb-8 border-b border-slate-200 pb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-indigo-600 font-['Manrope']">
-              PRESUPUESTO
-            </h1>
-            <p className="text-slate-500 text-sm mt-1">Documento comercial</p>
+          <div className="flex items-center gap-4">
+            {/* Logo de la empresa */}
+            <img 
+              src="https://customer-assets.emergentagent.com/job_presupuesto-app-27/artifacts/yunqqtir_logo-final.png" 
+              alt="INICIA Facility Management" 
+              className="h-16 w-auto object-contain"
+            />
+            <div>
+              <h1 className="text-2xl font-bold text-red-500 font-['Manrope']">
+                PRESUPUESTO
+              </h1>
+              <p className="text-slate-500 text-sm mt-1">Documento comercial</p>
+            </div>
           </div>
           <div className="text-right">
             <div className="flex items-center gap-2 mb-2">
@@ -531,7 +539,7 @@ const BudgetTemplatePage = () => {
 
         {/* Services Description */}
         <div className="mb-8">
-          <div className="bg-indigo-600 text-white px-4 py-2 rounded-t-lg font-medium">
+          <div className="bg-red-400 text-white px-4 py-2 rounded-t-lg font-medium">
             DESCRIPCIÓN DE LOS SERVICIOS
           </div>
           <div className="border border-t-0 border-slate-200 rounded-b-lg p-4">
@@ -548,7 +556,7 @@ const BudgetTemplatePage = () => {
 
         {/* Materials Table */}
         <div className="mb-8">
-          <div className="bg-indigo-600 text-white px-4 py-2 rounded-t-lg font-medium flex items-center justify-between">
+          <div className="bg-red-400 text-white px-4 py-2 rounded-t-lg font-medium flex items-center justify-between">
             <span>DESCRIPCIÓN DE LOS MATERIALES</span>
             <Button
               type="button"
