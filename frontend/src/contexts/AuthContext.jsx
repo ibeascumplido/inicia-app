@@ -28,13 +28,20 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const checkAuth = useCallback(async () => {
+    const sessionToken = localStorage.getItem('session_token');
+    if (!sessionToken) {
+      setUser(null);
+      setIsAuthenticated(false);
+      setLoading(false);
+      return;
+    }
+    
     try {
-      const response = await axios.get(`${API}/auth/me`, {
-        withCredentials: true
-      });
+      const response = await axios.get(`${API}/auth/me`);
       setUser(response.data);
       setIsAuthenticated(true);
     } catch (error) {
+      localStorage.removeItem('session_token');
       setUser(null);
       setIsAuthenticated(false);
     } finally {
