@@ -129,8 +129,7 @@ const MyCalendarPage = () => {
 
     try {
       const response = await axios.post(`${API}/my-vacaciones`, null, {
-        params: { fecha: dateStr, tipo: markMode },
-        withCredentials: true
+        params: { fecha: dateStr, tipo: markMode }
       });
       
       if (response.data.action === "deleted") {
