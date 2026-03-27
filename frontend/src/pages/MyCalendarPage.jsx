@@ -35,8 +35,7 @@ const MyCalendarPage = () => {
     try {
       const year = currentDate.getFullYear();
       const response = await axios.get(`${API}/my-vacaciones`, {
-        params: { year },
-        withCredentials: true
+        params: { year }
       });
       setVacaciones(response.data);
     } catch (error) {
@@ -48,8 +47,7 @@ const MyCalendarPage = () => {
     try {
       const year = currentDate.getFullYear();
       const response = await axios.get(`${API}/my-vacaciones/resumen`, {
-        params: { year },
-        withCredentials: true
+        params: { year }
       });
       setResumen(response.data);
     } catch (error) {
