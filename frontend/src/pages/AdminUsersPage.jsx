@@ -61,9 +61,7 @@ const AdminUsersPage = () => {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const response = await axios.get(`${API}/admin/users`, {
-        
-      });
+      const response = await axios.get(`${API}/admin/users`);
       setUsers(response.data);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -79,9 +77,7 @@ const AdminUsersPage = () => {
 
   const handleApprove = async (userId) => {
     try {
-      await axios.put(`${API}/admin/users/${userId}`, { status: "approved" }, {
-        
-      });
+      await axios.put(`${API}/admin/users/${userId}`, { status: "approved" });
       toast.success("Usuario aprobado");
       fetchUsers();
     } catch (error) {
@@ -91,9 +87,7 @@ const AdminUsersPage = () => {
 
   const handleReject = async (userId) => {
     try {
-      await axios.put(`${API}/admin/users/${userId}`, { status: "rejected" }, {
-        
-      });
+      await axios.put(`${API}/admin/users/${userId}`, { status: "rejected" });
       toast.success("Usuario rechazado");
       fetchUsers();
     } catch (error) {
