@@ -1,7 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+// Use relative path for API calls - works in both dev and production
+const API = '/api';
 
 const AuthContext = createContext(null);
 
