@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FileText, Calendar, Clock, CheckCircle, XCircle, ArrowRight } from "lucide-react";
+import { FileText, Calendar, Clock, CheckCircle, ArrowRight, Palmtree, Sun, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -22,28 +23,35 @@ const item = {
 };
 
 const HomePage = () => {
+  const { user, isAdmin, isPending } = useAuth();
   const [stats, setStats] = useState(null);
   const [recentBudgets, setRecentBudgets] = useState([]);
-  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [myResumen, setMyResumen] = useState(null);
+  const [pendingUsers, setPendingUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [statsRes, budgetsRes, eventsRes] = await Promise.all([
-          axios.get(`${API}/dashboard/stats`),
-          axios.get(`${API}/budget-templates`),
-          axios.get(`${API}/events`)
-        ]);
-        setStats(statsRes.data);
-        setRecentBudgets(budgetsRes.data.slice(0, 5));
-        
-        const today = new Date().toISOString().split('T')[0];
-        const upcoming = eventsRes.data
-          .filter(e => e.date >= today)
-          .sort((a, b) => a.date.localeCompare(b.date))
-          .slice(0, 5);
-        setUpcomingEvents(upcoming);
+        // Fetch user's vacation summary
+        if (!isPending) {
+          const resumenRes = await axios.get(`${API}/my-vacaciones/resumen`, {
+            withCredentials: true
+          });
+          setMyResumen(resumenRes.data);
+        }
+
+        // Admin-only data
+        if (isAdmin) {
+          const [statsRes, budgetsRes, pendingRes] = await Promise.all([
+            axios.get(`${API}/dashboard/stats`, { withCredentials: true }),
+            axios.get(`${API}/budget-templates`, { withCredentials: true }),
+            axios.get(`${API}/admin/users/pending`, { withCredentials: true })
+          ]);
+          setStats(statsRes.data);
+          setRecentBudgets(budgetsRes.data.slice(0, 5));
+          setPendingUsers(pendingRes.data);
+        }
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       } finally {
@@ -51,20 +59,13 @@ const HomePage = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [isAdmin, isPending]);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
       currency: 'EUR'
     }).format(amount);
-  };
-
-  const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString('es-ES', {
-      day: 'numeric',
-      month: 'short'
-    });
   };
 
   if (loading) {
@@ -78,178 +79,281 @@ const HomePage = () => {
   return (
     <div data-testid="home-page">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight font-['Manrope']">Bienvenido</h1>
-        <p className="text-slate-500 mt-1">Resumen de tu actividad</p>
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight font-['Manrope']">
+          Hola, {user?.name?.split(' ')[0] || 'Usuario'}
+        </h1>
+        <p className="text-slate-500 mt-1">
+          {isPending ? 'Tu cuenta está pendiente de aprobación' : 'Resumen de tu actividad'}
+        </p>
       </div>
 
-      {/* Stats Cards */}
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-      >
-        <motion.div variants={item}>
-          <Card className="border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-500">Total Presupuestos</p>
-                  <p className="text-2xl font-bold text-slate-900 font-['JetBrains_Mono']" data-testid="total-budgets">
-                    {stats?.total_budgets || 0}
-                  </p>
-                </div>
-                <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-indigo-600" />
-                </div>
+      {/* Pending Approval Notice */}
+      {isPending && (
+        <Card className="border-orange-200 bg-orange-50 mb-6">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
+                <Clock className="w-6 h-6 text-orange-600" />
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={item}>
-          <Card className="border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-500">Pendientes</p>
-                  <p className="text-2xl font-bold text-orange-600 font-['JetBrains_Mono']" data-testid="pending-budgets">
-                    {stats?.pending_budgets || 0}
-                  </p>
-                </div>
-                <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center">
-                  <Clock className="w-6 h-6 text-orange-600" />
-                </div>
+              <div>
+                <p className="font-medium text-orange-900">Cuenta pendiente de aprobación</p>
+                <p className="text-sm text-orange-700">Un administrador revisará tu solicitud pronto.</p>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={item}>
-          <Card className="border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-500">Aprobados (sin IVA)</p>
-                  <p className="text-2xl font-bold text-green-600 font-['JetBrains_Mono']" data-testid="approved-amount">
-                    {formatCurrency(stats?.total_approved_amount || 0)}
-                  </p>
-                </div>
-                <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={item}>
-          <Card className="border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-500">Próximos Eventos</p>
-                  <p className="text-2xl font-bold text-slate-900 font-['JetBrains_Mono']" data-testid="upcoming-events">
-                    {stats?.upcoming_events || 0}
-                  </p>
-                </div>
-                <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
-                  <Calendar className="w-6 h-6 text-slate-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </motion.div>
-
-      {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Budgets */}
-        <Card className="border-slate-100 shadow-sm">
-          <CardHeader className="border-b border-slate-50 pb-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold text-slate-900 font-['Manrope']">Presupuestos Recientes</CardTitle>
-              <Link to="/budgets">
-                <Button variant="ghost" size="sm" className="text-indigo-600 hover:text-indigo-700" data-testid="view-all-budgets">
-                  Ver todos <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </Link>
             </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            {recentBudgets.length === 0 ? (
-              <div className="p-6 text-center text-slate-400" data-testid="no-budgets">
-                No hay presupuestos todavía
-              </div>
-            ) : (
-              <ul className="divide-y divide-slate-100">
-                {recentBudgets.map((budget) => (
-                  <li key={budget.id} className="p-4 hover:bg-slate-50 transition-colors" data-testid={`budget-item-${budget.id}`}>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* User's Vacation Summary */}
+      {!isPending && myResumen && (
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        >
+          <motion.div variants={item}>
+            <Card className="border-orange-200 bg-orange-50 shadow-sm hover:shadow-md transition-all">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-orange-700">Vacaciones</p>
+                    <p className="text-2xl font-bold text-orange-900 font-['JetBrains_Mono']">
+                      {myResumen.dias_disfrutados}/{myResumen.dias_disponibles}
+                    </p>
+                    <p className="text-xs text-orange-600">{myResumen.dias_restantes} restantes</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
+                    <Palmtree className="w-6 h-6 text-orange-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div variants={item}>
+            <Card className="border-blue-200 bg-blue-50 shadow-sm hover:shadow-md transition-all">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-blue-700">Días Libres</p>
+                    <p className="text-2xl font-bold text-blue-900 font-['JetBrains_Mono']">
+                      {myResumen.dias_libres_disfrutados}/{myResumen.dias_libres_disponibles}
+                    </p>
+                    <p className="text-xs text-blue-600">{myResumen.dias_libres_restantes} restantes</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                    <Sun className="w-6 h-6 text-blue-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div variants={item} className="col-span-1 md:col-span-2">
+            <Link to="/my-calendar">
+              <Card className="border-slate-100 shadow-sm hover:shadow-md transition-all cursor-pointer hover:border-red-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-slate-500">Acceso rápido</p>
+                      <p className="text-xl font-bold text-slate-900">Mi Calendario</p>
+                      <p className="text-sm text-slate-500 mt-1">Gestiona tus vacaciones y días libres</p>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center">
+                      <Calendar className="w-6 h-6 text-red-500" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Admin Section */}
+      {isAdmin && (
+        <>
+          {/* Pending Users Alert */}
+          {pendingUsers.length > 0 && (
+            <Card className="border-orange-200 bg-orange-50 mb-6">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Users className="w-5 h-5 text-orange-600" />
+                    <span className="text-orange-900 font-medium">
+                      {pendingUsers.length} usuario{pendingUsers.length > 1 ? 's' : ''} pendiente{pendingUsers.length > 1 ? 's' : ''} de aprobación
+                    </span>
+                  </div>
+                  <Link to="/admin/users">
+                    <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
+                      Revisar
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Admin Stats */}
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+          >
+            <motion.div variants={item}>
+              <Card className="border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-slate-500">Total Presupuestos</p>
+                      <p className="text-2xl font-bold text-slate-900 font-['JetBrains_Mono']" data-testid="total-budgets">
+                        {stats?.total_budgets || 0}
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-red-500" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={item}>
+              <Card className="border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-slate-500">Pendientes</p>
+                      <p className="text-2xl font-bold text-orange-600 font-['JetBrains_Mono']" data-testid="pending-budgets">
+                        {stats?.pending_budgets || 0}
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center">
+                      <Clock className="w-6 h-6 text-orange-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={item}>
+              <Card className="border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-slate-500">Aprobados (sin IVA)</p>
+                      <p className="text-2xl font-bold text-green-600 font-['JetBrains_Mono']" data-testid="approved-amount">
+                        {formatCurrency(stats?.total_approved_amount || 0)}
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+                      <CheckCircle className="w-6 h-6 text-green-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={item}>
+              <Link to="/admin/users">
+                <Card className="border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer">
+                  <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium text-slate-900">{budget.budget_number}</p>
-                        <p className="text-sm text-slate-500">{budget.cliente}</p>
+                        <p className="text-sm text-slate-500">Gestión</p>
+                        <p className="text-xl font-bold text-slate-900">Usuarios</p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-mono font-medium text-slate-900">{formatCurrency(budget.total_con_iva || 0)}</p>
-                        <span className={`status-badge status-${budget.status}`}>
-                          {budget.status === 'pending' ? 'Pendiente' : budget.status === 'approved' ? 'Aprobado' : 'Rechazado'}
-                        </span>
+                      <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center">
+                        <Users className="w-6 h-6 text-purple-600" />
                       </div>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Upcoming Events */}
-        <Card className="border-slate-100 shadow-sm">
-          <CardHeader className="border-b border-slate-50 pb-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold text-slate-900 font-['Manrope']">Próximos Eventos</CardTitle>
-              <Link to="/calendar">
-                <Button variant="ghost" size="sm" className="text-indigo-600 hover:text-indigo-700" data-testid="view-calendar">
-                  Ver calendario <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
+                  </CardContent>
+                </Card>
               </Link>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            {upcomingEvents.length === 0 ? (
-              <div className="p-6 text-center text-slate-400" data-testid="no-events">
-                No hay eventos próximos
-              </div>
-            ) : (
-              <ul className="divide-y divide-slate-100">
-                {upcomingEvents.map((event) => (
-                  <li key={event.id} className="p-4 hover:bg-slate-50 transition-colors" data-testid={`event-item-${event.id}`}>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-indigo-50 flex flex-col items-center justify-center">
-                        <span className="text-xs text-indigo-600 uppercase font-medium">
-                          {new Date(event.date).toLocaleDateString('es-ES', { month: 'short' })}
-                        </span>
-                        <span className="text-lg font-bold text-indigo-600">
-                          {new Date(event.date).getDate()}
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-slate-900">{event.title}</p>
-                        {event.start_time && (
-                          <p className="text-sm text-slate-500">
-                            {event.start_time}{event.end_time ? ` - ${event.end_time}` : ''}
-                          </p>
-                        )}
-                      </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Recent Budgets (Admin only) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="border-slate-100 shadow-sm">
+              <CardHeader className="border-b border-slate-50 pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-semibold text-slate-900 font-['Manrope']">Presupuestos Recientes</CardTitle>
+                  <Link to="/budgets">
+                    <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600" data-testid="view-all-budgets">
+                      Ver todos <ArrowRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                {recentBudgets.length === 0 ? (
+                  <div className="p-6 text-center text-slate-400" data-testid="no-budgets">
+                    No hay presupuestos todavía
+                  </div>
+                ) : (
+                  <ul className="divide-y divide-slate-100">
+                    {recentBudgets.map((budget) => (
+                      <li key={budget.id} className="p-4 hover:bg-slate-50 transition-colors" data-testid={`budget-item-${budget.id}`}>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-slate-900">{budget.budget_number}</p>
+                            <p className="text-sm text-slate-500">{budget.cliente}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-mono font-medium text-slate-900">{formatCurrency(budget.total_con_iva || 0)}</p>
+                            <span className={`status-badge status-${budget.status}`}>
+                              {budget.status === 'pending' ? 'Pendiente' : budget.status === 'approved' ? 'Aprobado' : 'Rechazado'}
+                            </span>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Quick Actions */}
+            <Card className="border-slate-100 shadow-sm">
+              <CardHeader className="border-b border-slate-50 pb-4">
+                <CardTitle className="text-lg font-semibold text-slate-900 font-['Manrope']">Acciones Rápidas</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <Link to="/budgets/new">
+                  <Button variant="outline" className="w-full justify-start h-14 text-left">
+                    <FileText className="w-5 h-5 mr-3 text-red-500" />
+                    <div>
+                      <p className="font-medium">Nuevo Presupuesto</p>
+                      <p className="text-xs text-slate-500">Crear presupuesto desde plantilla</p>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                  </Button>
+                </Link>
+                <Link to="/calendar">
+                  <Button variant="outline" className="w-full justify-start h-14 text-left">
+                    <Calendar className="w-5 h-5 mr-3 text-red-500" />
+                    <div>
+                      <p className="font-medium">Ver Calendarios</p>
+                      <p className="text-xs text-slate-500">Gestionar vacaciones de todos</p>
+                    </div>
+                  </Button>
+                </Link>
+                <Link to="/admin/users">
+                  <Button variant="outline" className="w-full justify-start h-14 text-left">
+                    <Users className="w-5 h-5 mr-3 text-purple-500" />
+                    <div>
+                      <p className="font-medium">Gestionar Usuarios</p>
+                      <p className="text-xs text-slate-500">Aprobar y configurar accesos</p>
+                    </div>
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      )}
     </div>
   );
 };
