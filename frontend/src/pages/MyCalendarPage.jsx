@@ -186,6 +186,15 @@ const MyCalendarPage = () => {
   const renderMonthCalendar = (year, month, compact = false) => {
     const days = getDaysInMonth(year, month);
     
+    // Helper to get background color based on status
+    const getStatusColor = (vacInfo) => {
+      if (!vacInfo) return null;
+      const status = vacInfo.status || "pending";
+      if (status === "pending") return STATUS_COLORS.pending;
+      if (status === "rejected") return STATUS_COLORS.rejected;
+      return user?.color || "#3B82F6"; // approved uses user color
+    };
+    
     return (
       <div className={compact ? "" : "border border-slate-200 rounded-lg overflow-hidden"}>
         {!compact && (
@@ -206,20 +215,28 @@ const MyCalendarPage = () => {
             const hasAny = isVacacion || isLibre;
             const isTodayDate = isToday(day.fullDate);
             const isWeekend = day.fullDate.getDay() === 0 || day.fullDate.getDay() === 6;
+            
+            const bgColor = getStatusColor(vacInfo);
+            const status = vacInfo?.status || "pending";
+            const isApproved = status === "approved";
+            const isPendingVac = status === "pending";
+            const isRejected = status === "rejected";
 
             if (compact) {
               return (
                 <button
                   key={index}
                   onClick={() => day.isCurrentMonth && toggleVacacion(dateStr)}
-                  disabled={!day.isCurrentMonth || isPending}
+                  disabled={!day.isCurrentMonth || isPending || isApproved}
                   className={`aspect-square text-[10px] flex items-center justify-center transition-all ${
                     !day.isCurrentMonth ? "text-slate-300" : 
                     hasAny ? "text-white font-bold" : 
                     isTodayDate ? "bg-red-100 text-red-600 font-bold" :
                     isWeekend ? "text-slate-400" : "text-slate-700 hover:bg-slate-100"
-                  } ${isLibre ? "ring-1 ring-inset ring-slate-900" : ""}`}
-                  style={hasAny ? { backgroundColor: user?.color || "#3B82F6" } : {}}
+                  } ${isLibre && isApproved ? "ring-1 ring-inset ring-slate-900" : ""} ${
+                    isPendingVac && hasAny ? "animate-pulse" : ""
+                  }`}
+                  style={hasAny ? { backgroundColor: bgColor } : {}}
                 >
                   {day.date}
                 </button>
@@ -230,21 +247,25 @@ const MyCalendarPage = () => {
               <button
                 key={index}
                 onClick={() => day.isCurrentMonth && toggleVacacion(dateStr)}
-                disabled={!day.isCurrentMonth || isPending}
-                className={`relative min-h-[50px] p-1 border border-slate-100 transition-all ${
+                disabled={!day.isCurrentMonth || isPending || isApproved}
+                className={`relative min-h-[60px] p-1 border border-slate-100 transition-all ${
                   !day.isCurrentMonth ? "bg-slate-50 text-slate-400" : 
                   isWeekend ? "bg-slate-50/50" : "bg-white hover:bg-slate-50"
                 } ${isTodayDate ? "ring-2 ring-red-400 ring-inset" : ""} ${
                   hasAny ? "text-white" : ""
-                } ${isLibre ? "ring-2 ring-slate-900 ring-inset" : ""}`}
-                style={hasAny ? { backgroundColor: user?.color || "#3B82F6" } : {}}
+                } ${isLibre && isApproved ? "ring-2 ring-slate-900 ring-inset" : ""}`}
+                style={hasAny ? { backgroundColor: bgColor } : {}}
+                title={vacInfo?.rejection_comment ? `Rechazado: ${vacInfo.rejection_comment}` : ""}
               >
                 <span className={`text-sm font-medium ${hasAny ? "text-white" : ""}`}>
                   {day.date}
                 </span>
                 {hasAny && (
-                  <div className="absolute bottom-1 left-1/2 -translate-x-1/2">
+                  <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-0.5">
                     {isVacacion ? <Palmtree className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
+                    {isPendingVac && <Clock className="w-3 h-3" />}
+                    {isApproved && <CheckCircle className="w-3 h-3" />}
+                    {isRejected && <XCircle className="w-3 h-3" />}
                   </div>
                 )}
               </button>
