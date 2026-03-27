@@ -344,32 +344,40 @@ const MyCalendarPage = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="bg-orange-50 rounded-lg p-4 text-center">
                 <Palmtree className="w-6 h-6 text-orange-500 mx-auto mb-2" />
                 <p className="text-xs text-slate-500 uppercase">Vacaciones</p>
                 <p className="text-2xl font-bold text-orange-600">
-                  {resumen.dias_disfrutados}/{resumen.dias_disponibles}
+                  {resumen.dias_aprobados || 0}/{resumen.dias_disponibles}
                 </p>
                 <p className="text-xs text-slate-500">{resumen.dias_restantes} restantes</p>
+              </div>
+              <div className="bg-amber-50 rounded-lg p-4 text-center">
+                <Clock className="w-6 h-6 text-amber-500 mx-auto mb-2" />
+                <p className="text-xs text-slate-500 uppercase">Pendientes</p>
+                <p className="text-2xl font-bold text-amber-600">
+                  {(resumen.dias_pendientes || 0) + (resumen.dias_libres_pendientes || 0)}
+                </p>
+                <p className="text-xs text-slate-500">esperando aprobación</p>
               </div>
               <div className="bg-blue-50 rounded-lg p-4 text-center">
                 <Sun className="w-6 h-6 text-blue-500 mx-auto mb-2" />
                 <p className="text-xs text-slate-500 uppercase">Días Libres</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {resumen.dias_libres_disfrutados}/{resumen.dias_libres_disponibles}
+                  {resumen.dias_libres_aprobados || 0}/{resumen.dias_libres_disponibles}
                 </p>
                 <p className="text-xs text-slate-500">{resumen.dias_libres_restantes} restantes</p>
               </div>
-              <div className="bg-green-50 rounded-lg p-4 text-center col-span-2 md:col-span-2">
+              <div className="bg-green-50 rounded-lg p-4 text-center col-span-2">
                 <p className="text-xs text-slate-500 uppercase mb-1">Tu color</p>
                 <div 
-                  className="w-12 h-12 rounded-lg mx-auto mb-2 flex items-center justify-center text-white font-bold"
+                  className="w-10 h-10 rounded-lg mx-auto mb-2 flex items-center justify-center text-white font-bold text-sm"
                   style={{ backgroundColor: user?.color || "#3B82F6" }}
                 >
                   {user?.abreviatura || user?.name?.slice(0, 2).toUpperCase()}
                 </div>
-                <p className="font-medium text-slate-700">{user?.name}</p>
+                <p className="font-medium text-slate-700 text-sm">{user?.name}</p>
               </div>
             </div>
           </CardContent>
