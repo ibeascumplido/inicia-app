@@ -3,6 +3,7 @@ import { LayoutDashboard, FileText, Calendar, Users, LogOut, User } from "lucide
 import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import NotificationBell from "./NotificationBell";
 
 const Layout = () => {
   const { user, isAdmin, isPending, logout } = useAuth();
@@ -26,12 +27,13 @@ const Layout = () => {
     <div className="min-h-screen bg-white" data-testid="app-layout">
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 h-screen w-64 border-r border-slate-100 bg-white z-50 flex flex-col" data-testid="sidebar">
-        <div className="p-6 border-b border-slate-100">
+        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <img 
             src="https://customer-assets.emergentagent.com/job_presupuesto-app-27/artifacts/yunqqtir_logo-final.png" 
             alt="INICIA" 
             className="h-10 w-auto"
           />
+          <NotificationBell />
         </div>
         
         <nav className="p-4 space-y-1 flex-1">
