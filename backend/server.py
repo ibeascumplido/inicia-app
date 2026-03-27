@@ -470,7 +470,7 @@ async def exchange_session(request: Request, response: Response):
             "auth_type": "google",
             "created_at": datetime.now(timezone.utc).isoformat()
         }
-        await db.users.insert_one(user)
+        await db.users.insert_one(user.copy())
     
     # Create session
     session_token = f"session_{uuid.uuid4().hex}"
@@ -530,7 +530,7 @@ async def register(user_data: UserCreate, response: Response):
         "auth_type": "email",
         "created_at": datetime.now(timezone.utc).isoformat()
     }
-    await db.users.insert_one(user)
+    await db.users.insert_one(user.copy())
     
     # Create session
     session_token = f"session_{uuid.uuid4().hex}"
