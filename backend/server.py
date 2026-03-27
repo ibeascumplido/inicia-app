@@ -1044,6 +1044,7 @@ async def approve_vacacion(vacacion_id: str, request: Request):
     if vacacion.get("status") != VacationStatus.PENDING:
         raise HTTPException(status_code=400, detail="Request is not pending")
     
+    # Update vacation status
     await db.vacaciones.update_one(
         {"id": vacacion_id},
         {"$set": {
@@ -1052,6 +1053,34 @@ async def approve_vacacion(vacacion_id: str, request: Request):
             "reviewed_by": admin["user_id"]
         }}
     )
+    
+    # Get user info for notification
+    user = await db.users.find_one({"user_id": vacacion["user_id"]}, {"_id": 0})
+    if user:
+        tipo_text = "vacaciones" if vacacion["tipo"] == "vacacion" else "día libre"
+        fecha_formatted = datetime.strptime(vacacion["fecha"], "%Y-%m-%d").strftime("%d/%m/%Y")
+        
+        # Create in-app notification
+        await create_notification(
+            user_id=user["user_id"],
+            notification_type=NotificationType.VACATION_APPROVED,
+            title="Solicitud aprobada ✅",
+            message=f"Tu solicitud de {tipo_text} para el {fecha_formatted} ha sido aprobada.",
+            data={"vacacion_id": vacacion_id, "fecha": vacacion["fecha"]}
+        )
+        
+        # Send email notification
+        email_html = create_vacation_email_html(
+            user_name=user.get("name", "Usuario"),
+            fecha=vacacion["fecha"],
+            tipo=vacacion["tipo"],
+            status="approved"
+        )
+        asyncio.create_task(send_notification_email(
+            to_email=user.get("email"),
+            subject="✅ Tu solicitud de vacaciones ha sido aprobada",
+            html_content=email_html
+        ))
     
     return {"message": "Vacation approved successfully"}
 
@@ -1068,6 +1097,7 @@ async def reject_vacacion(vacacion_id: str, request: Request, comment: Optional[
     if vacacion.get("status") != VacationStatus.PENDING:
         raise HTTPException(status_code=400, detail="Request is not pending")
     
+    # Update vacation status
     await db.vacaciones.update_one(
         {"id": vacacion_id},
         {"$set": {
@@ -1077,6 +1107,39 @@ async def reject_vacacion(vacacion_id: str, request: Request, comment: Optional[
             "rejection_comment": comment
         }}
     )
+    
+    # Get user info for notification
+    user = await db.users.find_one({"user_id": vacacion["user_id"]}, {"_id": 0})
+    if user:
+        tipo_text = "vacaciones" if vacacion["tipo"] == "vacacion" else "día libre"
+        fecha_formatted = datetime.strptime(vacacion["fecha"], "%Y-%m-%d").strftime("%d/%m/%Y")
+        
+        message = f"Tu solicitud de {tipo_text} para el {fecha_formatted} ha sido rechazada."
+        if comment:
+            message += f" Motivo: {comment}"
+        
+        # Create in-app notification
+        await create_notification(
+            user_id=user["user_id"],
+            notification_type=NotificationType.VACATION_REJECTED,
+            title="Solicitud rechazada ❌",
+            message=message,
+            data={"vacacion_id": vacacion_id, "fecha": vacacion["fecha"], "comment": comment}
+        )
+        
+        # Send email notification
+        email_html = create_vacation_email_html(
+            user_name=user.get("name", "Usuario"),
+            fecha=vacacion["fecha"],
+            tipo=vacacion["tipo"],
+            status="rejected",
+            comment=comment
+        )
+        asyncio.create_task(send_notification_email(
+            to_email=user.get("email"),
+            subject="❌ Tu solicitud de vacaciones ha sido rechazada",
+            html_content=email_html
+        ))
     
     return {"message": "Vacation rejected successfully"}
 
