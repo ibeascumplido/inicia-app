@@ -62,7 +62,7 @@ const AdminUsersPage = () => {
   const fetchUsers = useCallback(async () => {
     try {
       const response = await axios.get(`${API}/admin/users`, {
-        withCredentials: true
+        
       });
       setUsers(response.data);
     } catch (error) {
@@ -80,7 +80,7 @@ const AdminUsersPage = () => {
   const handleApprove = async (userId) => {
     try {
       await axios.put(`${API}/admin/users/${userId}`, { status: "approved" }, {
-        withCredentials: true
+        
       });
       toast.success("Usuario aprobado");
       fetchUsers();
@@ -92,7 +92,7 @@ const AdminUsersPage = () => {
   const handleReject = async (userId) => {
     try {
       await axios.put(`${API}/admin/users/${userId}`, { status: "rejected" }, {
-        withCredentials: true
+        
       });
       toast.success("Usuario rechazado");
       fetchUsers();
@@ -114,7 +114,7 @@ const AdminUsersPage = () => {
         color: editingUser.color,
         abreviatura: editingUser.abreviatura,
       }, {
-        withCredentials: true
+        
       });
       toast.success("Usuario actualizado");
       setShowEditModal(false);
@@ -130,7 +130,7 @@ const AdminUsersPage = () => {
     
     try {
       await axios.delete(`${API}/admin/users/${deleteConfirm.user_id}`, {
-        withCredentials: true
+        
       });
       toast.success("Usuario eliminado");
       setDeleteConfirm(null);

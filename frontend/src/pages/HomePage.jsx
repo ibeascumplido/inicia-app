@@ -36,7 +36,7 @@ const HomePage = () => {
         // Fetch user's vacation summary
         if (!isPending) {
           const resumenRes = await axios.get(`${API}/my-vacaciones/resumen`, {
-            withCredentials: true
+            
           });
           setMyResumen(resumenRes.data);
         }
@@ -44,9 +44,9 @@ const HomePage = () => {
         // Admin-only data
         if (isAdmin) {
           const [statsRes, budgetsRes, pendingRes] = await Promise.all([
-            axios.get(`${API}/dashboard/stats`, { withCredentials: true }),
-            axios.get(`${API}/budget-templates`, { withCredentials: true }),
-            axios.get(`${API}/admin/users/pending`, { withCredentials: true })
+            axios.get(`${API}/dashboard/stats`, ),
+            axios.get(`${API}/budget-templates`, ),
+            axios.get(`${API}/admin/users/pending`, )
           ]);
           setStats(statsRes.data);
           setRecentBudgets(budgetsRes.data.slice(0, 5));
