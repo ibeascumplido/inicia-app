@@ -6,7 +6,7 @@ import Layout from "@/components/Layout";
 import HomePage from "@/pages/HomePage";
 import BudgetsPage from "@/pages/BudgetsPage";
 import BudgetTemplatePage from "@/pages/BudgetTemplatePage";
-import CalendarPage from "@/pages/CalendarPage";
+import AdminCalendarPage from "@/pages/AdminCalendarPage";
 import MyCalendarPage from "@/pages/MyCalendarPage";
 import AdminUsersPage from "@/pages/AdminUsersPage";
 import LoginPage from "@/components/auth/LoginPage";
