@@ -685,6 +685,73 @@ async def delete_user(user_id: str, request: Request):
     
     return {"message": "User deleted successfully"}
 
+# ============ NOTIFICATIONS ENDPOINTS ============
+
+@api_router.get("/notifications")
+async def get_notifications(request: Request, unread_only: bool = False, limit: int = 50):
+    """Get user's notifications"""
+    user = await get_current_user(request)
+    
+    query = {"user_id": user["user_id"]}
+    if unread_only:
+        query["read"] = False
+    
+    notifications = await db.notifications.find(query, {"_id": 0}).sort("created_at", -1).to_list(limit)
+    return notifications
+
+@api_router.get("/notifications/count")
+async def get_unread_count(request: Request):
+    """Get count of unread notifications"""
+    user = await get_current_user(request)
+    
+    count = await db.notifications.count_documents({
+        "user_id": user["user_id"],
+        "read": False
+    })
+    return {"unread_count": count}
+
+@api_router.post("/notifications/{notification_id}/read")
+async def mark_notification_read(notification_id: str, request: Request):
+    """Mark a notification as read"""
+    user = await get_current_user(request)
+    
+    result = await db.notifications.update_one(
+        {"id": notification_id, "user_id": user["user_id"]},
+        {"$set": {"read": True}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    
+    return {"message": "Notification marked as read"}
+
+@api_router.post("/notifications/read-all")
+async def mark_all_read(request: Request):
+    """Mark all notifications as read"""
+    user = await get_current_user(request)
+    
+    result = await db.notifications.update_many(
+        {"user_id": user["user_id"], "read": False},
+        {"$set": {"read": True}}
+    )
+    
+    return {"message": f"Marked {result.modified_count} notifications as read"}
+
+@api_router.delete("/notifications/{notification_id}")
+async def delete_notification(notification_id: str, request: Request):
+    """Delete a notification"""
+    user = await get_current_user(request)
+    
+    result = await db.notifications.delete_one({
+        "id": notification_id,
+        "user_id": user["user_id"]
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    
+    return {"message": "Notification deleted"}
+
 # Root endpoint
 @api_router.get("/")
 async def root():
