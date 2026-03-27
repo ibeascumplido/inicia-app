@@ -107,8 +107,6 @@ const AdminUsersPage = () => {
         dias_libres: editingUser.dias_libres,
         color: editingUser.color,
         abreviatura: editingUser.abreviatura,
-      }, {
-        
       });
       toast.success("Usuario actualizado");
       setShowEditModal(false);
@@ -123,9 +121,7 @@ const AdminUsersPage = () => {
     if (!deleteConfirm) return;
     
     try {
-      await axios.delete(`${API}/admin/users/${deleteConfirm.user_id}`, {
-        
-      });
+      await axios.delete(`${API}/admin/users/${deleteConfirm.user_id}`);
       toast.success("Usuario eliminado");
       setDeleteConfirm(null);
       fetchUsers();
