@@ -1,27 +1,68 @@
 import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Layout from "@/components/Layout";
 import HomePage from "@/pages/HomePage";
 import BudgetsPage from "@/pages/BudgetsPage";
 import BudgetTemplatePage from "@/pages/BudgetTemplatePage";
 import CalendarPage from "@/pages/CalendarPage";
+import MyCalendarPage from "@/pages/MyCalendarPage";
+import AdminUsersPage from "@/pages/AdminUsersPage";
+import LoginPage from "@/components/auth/LoginPage";
+import AuthCallback from "@/components/auth/AuthCallback";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<HomePage />} />
-            <Route path="budgets" element={<BudgetsPage />} />
-            <Route path="budgets/new" element={<BudgetTemplatePage />} />
-            <Route path="budgets/:id" element={<BudgetTemplatePage />} />
-            <Route path="calendar" element={<CalendarPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-      <Toaster position="top-right" />
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+            
+            {/* Protected routes */}
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<HomePage />} />
+              <Route path="my-calendar" element={<MyCalendarPage />} />
+              
+              {/* Admin only routes */}
+              <Route path="budgets" element={
+                <ProtectedRoute requireAdmin>
+                  <BudgetsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="budgets/new" element={
+                <ProtectedRoute requireAdmin>
+                  <BudgetTemplatePage />
+                </ProtectedRoute>
+              } />
+              <Route path="budgets/:id" element={
+                <ProtectedRoute requireAdmin>
+                  <BudgetTemplatePage />
+                </ProtectedRoute>
+              } />
+              <Route path="calendar" element={
+                <ProtectedRoute requireAdmin>
+                  <CalendarPage />
+                </ProtectedRoute>
+              } />
+              <Route path="admin/users" element={
+                <ProtectedRoute requireAdmin>
+                  <AdminUsersPage />
+                </ProtectedRoute>
+              } />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+        <Toaster position="top-right" />
+      </AuthProvider>
     </div>
   );
 }
