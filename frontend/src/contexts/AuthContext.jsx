@@ -1,8 +1,16 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-// Use relative path for API calls - works in both dev and production
-const API = '/api';
+const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+// Configure axios to send session token in headers
+axios.interceptors.request.use((config) => {
+  const sessionToken = localStorage.getItem('session_token');
+  if (sessionToken) {
+    config.headers['Authorization'] = `Bearer ${sessionToken}`;
+  }
+  return config;
+});
 
 const AuthContext = createContext(null);
 
