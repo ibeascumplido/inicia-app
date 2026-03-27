@@ -213,31 +213,47 @@ const AdminCalendarPage = () => {
     setCurrentDate(new Date(currentDate.getFullYear() + 1, currentDate.getMonth(), 1));
   };
 
-  // Render a single day cell with all vacations
+  // Build a stable ordered list of user slots (max 12)
+  const userSlots = users.slice(0, 12);
+
+  // Render a single day cell with 12 user slots
   const renderDayCell = (day, compact = false) => {
     const dateStr = formatDateString(day.fullDate);
     const dayVacaciones = getVacacionesForDate(dateStr);
     const isTodayDate = isToday(day.fullDate);
     const isWeekend = day.fullDate.getDay() === 0 || day.fullDate.getDay() === 6;
 
+    // Build a map of user_id -> vacacion for quick lookup
+    const vacByUser = {};
+    dayVacaciones.forEach(v => { vacByUser[v.user_id] = v; });
+
     if (compact) {
-      const hasPending = dayVacaciones.some(v => v.status === "pending");
-      const hasApproved = dayVacaciones.some(v => v.status === "approved");
-      
       return (
         <div
           key={dateStr}
-          className={`aspect-square text-[10px] flex items-center justify-center transition-all relative ${
+          className={`aspect-square text-[10px] flex flex-col items-center justify-center transition-all relative ${
             !day.isCurrentMonth ? "text-slate-300" : 
             isTodayDate ? "bg-red-100 text-red-600 font-bold" :
             isWeekend ? "text-slate-400 bg-slate-50" : "text-slate-700"
           }`}
         >
-          {day.date}
-          {(hasPending || hasApproved) && (
-            <div className={`absolute bottom-0 left-0 right-0 h-1 ${
-              hasPending ? "bg-amber-500 animate-pulse" : "bg-green-500"
-            }`} />
+          <span className="leading-none">{day.date}</span>
+          {userSlots.length > 0 && day.isCurrentMonth && (
+            <div className="flex gap-px mt-0.5">
+              {userSlots.slice(0, 6).map((u) => {
+                const v = vacByUser[u.user_id];
+                if (!v) return <div key={u.user_id} className="w-1 h-1 rounded-full bg-slate-200" />;
+                const isPending = v.status === "pending";
+                const isRejected = v.status === "rejected";
+                return (
+                  <div
+                    key={u.user_id}
+                    className={`w-1 h-1 rounded-full ${isPending ? "animate-pulse" : ""} ${isRejected ? "opacity-40" : ""}`}
+                    style={{ backgroundColor: isPending ? "#F59E0B" : isRejected ? "#EF4444" : u.color || "#3B82F6" }}
+                  />
+                );
+              })}
+            </div>
           )}
         </div>
       );
@@ -246,48 +262,48 @@ const AdminCalendarPage = () => {
     return (
       <div
         key={dateStr}
-        className={`min-h-[80px] p-1 border border-slate-100 transition-all ${
-          !day.isCurrentMonth ? "bg-slate-50" : 
-          isWeekend ? "bg-slate-50/50" : "bg-white"
+        className={`border border-slate-100 transition-all ${
+          !day.isCurrentMonth ? "bg-slate-50/60" : 
+          isWeekend ? "bg-slate-50/30" : "bg-white"
         } ${isTodayDate ? "ring-2 ring-red-400 ring-inset" : ""}`}
       >
-        <div className={`text-xs font-medium mb-1 ${
+        <div className={`text-[11px] font-medium px-1 pt-0.5 ${
           !day.isCurrentMonth ? "text-slate-400" : 
-          isTodayDate ? "text-red-600" : "text-slate-700"
+          isTodayDate ? "text-red-600" : "text-slate-600"
         }`}>
           {day.date}
         </div>
         
-        <div className="space-y-0.5">
-          {dayVacaciones.slice(0, 3).map((v) => {
+        {/* 12 user slots - each is a horizontal strip */}
+        <div className="flex flex-col gap-[1px] px-0.5 pb-0.5 mt-0.5">
+          {userSlots.map((u) => {
+            const v = vacByUser[u.user_id];
+            if (!v) {
+              // Empty slot - subtle background to show the grid
+              return (
+                <div
+                  key={u.user_id}
+                  className="h-[5px] w-full rounded-sm bg-slate-100/60"
+                />
+              );
+            }
             const isPending = v.status === "pending";
-            const isApproved = v.status === "approved";
             const isRejected = v.status === "rejected";
-            const bgColor = isPending ? "#F59E0B" : isRejected ? "#EF4444" : v.user_color || "#3B82F6";
+            const bgColor = isPending ? "#F59E0B" : isRejected ? "#EF4444" : u.color || "#3B82F6";
             
             return (
               <button
-                key={v.id}
-                onClick={() => handleVacacionClick(v)}
-                disabled={!isPending}
-                className={`w-full text-[10px] text-white rounded px-1 py-0.5 truncate text-left flex items-center gap-1 ${
-                  isPending ? "animate-pulse cursor-pointer hover:opacity-80" : 
-                  isApproved ? "cursor-default" : "cursor-default opacity-60"
-                } ${v.tipo === "libre" && isApproved ? "ring-1 ring-slate-900" : ""}`}
+                key={u.user_id}
+                onClick={() => isPending && handleVacacionClick(v)}
+                className={`h-[5px] w-full rounded-sm transition-all ${
+                  isPending ? "animate-pulse cursor-pointer hover:h-[7px]" : 
+                  isRejected ? "opacity-40 cursor-default" : "cursor-default"
+                } ${v.tipo === "libre" ? "ring-1 ring-inset ring-white/50" : ""}`}
                 style={{ backgroundColor: bgColor }}
-                title={`${v.user_name} - ${v.tipo === "vacacion" ? "Vacaciones" : "Día Libre"} (${v.status})`}
-              >
-                {v.tipo === "vacacion" ? <Palmtree className="w-2.5 h-2.5 flex-shrink-0" /> : <Sun className="w-2.5 h-2.5 flex-shrink-0" />}
-                <span className="truncate">{v.user_abreviatura || v.user_name?.slice(0, 3)}</span>
-                {isPending && <Clock className="w-2.5 h-2.5 flex-shrink-0" />}
-              </button>
+                title={`${v.user_name || u.name} - ${v.tipo === "vacacion" ? "Vacaciones" : "Día Libre"} (${v.status})`}
+              />
             );
           })}
-          {dayVacaciones.length > 3 && (
-            <div className="text-[9px] text-slate-500 text-center">
-              +{dayVacaciones.length - 3} más
-            </div>
-          )}
         </div>
       </div>
     );
@@ -522,6 +538,22 @@ const AdminCalendarPage = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* User color legend */}
+          {userSlots.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-slate-600">
+              <span className="font-medium text-slate-500">Empleados:</span>
+              {userSlots.map((u, idx) => (
+                <div key={u.user_id} className="flex items-center gap-1.5">
+                  <div
+                    className="w-3 h-3 rounded-sm"
+                    style={{ backgroundColor: u.color || "#3B82F6" }}
+                  />
+                  <span>{u.abreviatura || u.name?.slice(0, 3)} - {u.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </>
       )}
 
