@@ -778,7 +778,7 @@ async def create_my_vacacion(request: Request, fecha: str, tipo: str = "vacacion
         "reviewed_by": None,
         "rejection_comment": None
     }
-    await db.vacaciones.insert_one(vacacion)
+    await db.vacaciones.insert_one(vacacion.copy())  # Insert copy to avoid _id mutation
     
     # Add user info for response
     vacacion["user_name"] = user.get("name", "")
