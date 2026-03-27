@@ -789,13 +789,23 @@ async def create_my_vacacion(request: Request, fecha: str, tipo: str = "vacacion
 
 @api_router.delete("/my-vacaciones/{fecha}")
 async def delete_my_vacacion(fecha: str, request: Request):
-    """Delete vacation for current user"""
+    """Cancel pending vacation request for current user"""
     user = await require_approved(request)
     
-    result = await db.vacaciones.delete_one({"user_id": user["user_id"], "fecha": fecha})
-    if result.deleted_count == 0:
+    # Check if exists and is pending
+    existing = await db.vacaciones.find_one({
+        "user_id": user["user_id"],
+        "fecha": fecha
+    }, {"_id": 0})
+    
+    if not existing:
         raise HTTPException(status_code=404, detail="Vacation not found")
-    return {"message": "Vacation deleted successfully"}
+    
+    if existing.get("status") == VacationStatus.APPROVED:
+        raise HTTPException(status_code=400, detail="Cannot cancel approved vacation. Contact admin.")
+    
+    result = await db.vacaciones.delete_one({"user_id": user["user_id"], "fecha": fecha})
+    return {"message": "Request cancelled successfully"}
 
 @api_router.get("/my-vacaciones/resumen")
 async def get_my_resumen(request: Request, year: Optional[int] = None):
