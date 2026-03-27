@@ -1015,17 +1015,31 @@ async def get_all_resumen(request: Request, year: Optional[int] = None):
     
     resumen = []
     for user in users:
-        # Count vacaciones for this year
-        vacaciones_count = await db.vacaciones.count_documents({
+        # Count APPROVED vacaciones for this year
+        vacaciones_approved = await db.vacaciones.count_documents({
             "user_id": user["user_id"],
             "fecha": {"$regex": f"^{year}"},
-            "tipo": "vacacion"
+            "tipo": "vacacion",
+            "status": VacationStatus.APPROVED
         })
-        # Count dias libres for this year
-        libres_count = await db.vacaciones.count_documents({
+        vacaciones_pending = await db.vacaciones.count_documents({
             "user_id": user["user_id"],
             "fecha": {"$regex": f"^{year}"},
-            "tipo": "libre"
+            "tipo": "vacacion",
+            "status": VacationStatus.PENDING
+        })
+        # Count APPROVED dias libres for this year
+        libres_approved = await db.vacaciones.count_documents({
+            "user_id": user["user_id"],
+            "fecha": {"$regex": f"^{year}"},
+            "tipo": "libre",
+            "status": VacationStatus.APPROVED
+        })
+        libres_pending = await db.vacaciones.count_documents({
+            "user_id": user["user_id"],
+            "fecha": {"$regex": f"^{year}"},
+            "tipo": "libre",
+            "status": VacationStatus.PENDING
         })
         
         dias_vacaciones_disponibles = user.get("dias_vacaciones", 32)
@@ -1039,12 +1053,14 @@ async def get_all_resumen(request: Request, year: Optional[int] = None):
             "color": user.get("color", "#3B82F6"),
             # Vacaciones
             "dias_disponibles": dias_vacaciones_disponibles,
-            "dias_disfrutados": vacaciones_count,
-            "dias_restantes": dias_vacaciones_disponibles - vacaciones_count,
+            "dias_aprobados": vacaciones_approved,
+            "dias_pendientes": vacaciones_pending,
+            "dias_restantes": dias_vacaciones_disponibles - vacaciones_approved,
             # Días libres
             "dias_libres_disponibles": dias_libres_disponibles,
-            "dias_libres_disfrutados": libres_count,
-            "dias_libres_restantes": dias_libres_disponibles - libres_count,
+            "dias_libres_aprobados": libres_approved,
+            "dias_libres_pendientes": libres_pending,
+            "dias_libres_restantes": dias_libres_disponibles - libres_approved,
         })
     
     return resumen
