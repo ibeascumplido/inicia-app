@@ -83,12 +83,11 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post(`${API}/auth/logout`, {}, {
-        withCredentials: true
-      });
+      await axios.post(`${API}/auth/logout`, {});
     } catch (error) {
       console.error('Logout error:', error);
     }
+    localStorage.removeItem('session_token');
     setUser(null);
     setIsAuthenticated(false);
   };
