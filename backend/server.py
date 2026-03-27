@@ -745,7 +745,7 @@ async def get_my_vacaciones(request: Request, month: Optional[str] = None, year:
 
 @api_router.post("/my-vacaciones")
 async def create_my_vacacion(request: Request, fecha: str, tipo: str = "vacacion"):
-    """Create vacation for current user"""
+    """Create vacation request for current user (status: pending)"""
     user = await require_approved(request)
     
     # Check if already exists
@@ -755,27 +755,37 @@ async def create_my_vacacion(request: Request, fecha: str, tipo: str = "vacacion
     }, {"_id": 0})
     
     if existing:
-        # If same type, delete it (toggle off)
-        if existing["tipo"] == tipo:
+        # If pending, can toggle off (cancel request)
+        if existing.get("status") == VacationStatus.PENDING:
             await db.vacaciones.delete_one({"user_id": user["user_id"], "fecha": fecha})
-            return {"message": "Vacation removed", "action": "deleted"}
-        else:
-            # Different type, update it
-            await db.vacaciones.update_one(
-                {"user_id": user["user_id"], "fecha": fecha},
-                {"$set": {"tipo": tipo}}
-            )
-            return {"message": "Vacation updated", "action": "updated", "tipo": tipo}
+            return {"message": "Request cancelled", "action": "deleted"}
+        # If approved, cannot modify
+        elif existing.get("status") == VacationStatus.APPROVED:
+            raise HTTPException(status_code=400, detail="Cannot modify approved vacation")
+        # If rejected, can create new request
+        elif existing.get("status") == VacationStatus.REJECTED:
+            await db.vacaciones.delete_one({"user_id": user["user_id"], "fecha": fecha})
     
-    # Create new
+    # Create new request (always pending)
     vacacion = {
         "id": str(uuid.uuid4()),
         "user_id": user["user_id"],
         "fecha": fecha,
-        "tipo": tipo
+        "tipo": tipo,
+        "status": VacationStatus.PENDING,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "reviewed_at": None,
+        "reviewed_by": None,
+        "rejection_comment": None
     }
     await db.vacaciones.insert_one(vacacion)
-    return {"message": "Vacation created", "action": "created", "vacacion": vacacion}
+    
+    # Add user info for response
+    vacacion["user_name"] = user.get("name", "")
+    vacacion["user_color"] = user.get("color", "#3B82F6")
+    vacacion["user_abreviatura"] = user.get("abreviatura", "")
+    
+    return {"message": "Request created", "action": "created", "vacacion": vacacion}
 
 @api_router.delete("/my-vacaciones/{fecha}")
 async def delete_my_vacacion(fecha: str, request: Request):
