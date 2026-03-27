@@ -38,6 +38,12 @@ class UserStatus(str, Enum):
     APPROVED = "approved"
     REJECTED = "rejected"
 
+# ============ VACATION REQUEST STATUS ============
+class VacationStatus(str, Enum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
 # ============ AUTH MODELS ============
 class UserBase(BaseModel):
     email: str
