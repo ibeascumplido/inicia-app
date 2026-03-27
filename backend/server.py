@@ -720,82 +720,202 @@ async def delete_operario(operario_id: str):
     await db.vacaciones.delete_many({"operario_id": operario_id})
     return {"message": "Operario deleted successfully"}
 
-# ============ VACACIONES ENDPOINTS ============
+# ============ VACACIONES ENDPOINTS (User-based) ============
 
-@api_router.get("/vacaciones")
-async def get_vacaciones(month: Optional[str] = None):
-    query = {}
+# User's own vacations
+@api_router.get("/my-vacaciones")
+async def get_my_vacaciones(request: Request, month: Optional[str] = None, year: Optional[int] = None):
+    """Get current user's vacations"""
+    user = await require_approved(request)
+    
+    query = {"user_id": user["user_id"]}
     if month:
         query["fecha"] = {"$regex": f"^{month}"}
+    elif year:
+        query["fecha"] = {"$regex": f"^{year}"}
+    
     vacaciones = await db.vacaciones.find(query, {"_id": 0}).to_list(10000)
     return vacaciones
 
-@api_router.post("/vacaciones", response_model=Vacacion)
-async def create_vacacion(vacacion_data: VacacionCreate):
+@api_router.post("/my-vacaciones")
+async def create_my_vacacion(request: Request, fecha: str, tipo: str = "vacacion"):
+    """Create vacation for current user"""
+    user = await require_approved(request)
+    
     # Check if already exists
     existing = await db.vacaciones.find_one({
-        "operario_id": vacacion_data.operario_id,
-        "fecha": vacacion_data.fecha
+        "user_id": user["user_id"],
+        "fecha": fecha
     }, {"_id": 0})
-    if existing:
-        raise HTTPException(status_code=400, detail="Vacation already exists for this day")
     
-    vacacion = Vacacion(**vacacion_data.model_dump())
-    doc = vacacion.model_dump()
-    await db.vacaciones.insert_one(doc)
-    return vacacion
+    if existing:
+        # If same type, delete it (toggle off)
+        if existing["tipo"] == tipo:
+            await db.vacaciones.delete_one({"user_id": user["user_id"], "fecha": fecha})
+            return {"message": "Vacation removed", "action": "deleted"}
+        else:
+            # Different type, update it
+            await db.vacaciones.update_one(
+                {"user_id": user["user_id"], "fecha": fecha},
+                {"$set": {"tipo": tipo}}
+            )
+            return {"message": "Vacation updated", "action": "updated", "tipo": tipo}
+    
+    # Create new
+    vacacion = {
+        "id": str(uuid.uuid4()),
+        "user_id": user["user_id"],
+        "fecha": fecha,
+        "tipo": tipo
+    }
+    await db.vacaciones.insert_one(vacacion)
+    return {"message": "Vacation created", "action": "created", "vacacion": vacacion}
 
-@api_router.delete("/vacaciones/{operario_id}/{fecha}")
-async def delete_vacacion(operario_id: str, fecha: str):
-    result = await db.vacaciones.delete_one({"operario_id": operario_id, "fecha": fecha})
+@api_router.delete("/my-vacaciones/{fecha}")
+async def delete_my_vacacion(fecha: str, request: Request):
+    """Delete vacation for current user"""
+    user = await require_approved(request)
+    
+    result = await db.vacaciones.delete_one({"user_id": user["user_id"], "fecha": fecha})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Vacation not found")
     return {"message": "Vacation deleted successfully"}
 
-@api_router.get("/vacaciones/resumen")
-async def get_vacaciones_resumen(year: Optional[int] = None):
+@api_router.get("/my-vacaciones/resumen")
+async def get_my_resumen(request: Request, year: Optional[int] = None):
+    """Get current user's vacation summary"""
+    user = await require_approved(request)
+    
     if not year:
         year = datetime.now().year
     
-    # Get all operarios
-    operarios = await db.operarios.find({}, {"_id": 0}).sort("orden", 1).to_list(100)
+    # Count vacaciones for this year
+    vacaciones_count = await db.vacaciones.count_documents({
+        "user_id": user["user_id"],
+        "fecha": {"$regex": f"^{year}"},
+        "tipo": "vacacion"
+    })
+    # Count dias libres for this year
+    libres_count = await db.vacaciones.count_documents({
+        "user_id": user["user_id"],
+        "fecha": {"$regex": f"^{year}"},
+        "tipo": "libre"
+    })
+    
+    dias_vacaciones_disponibles = user.get("dias_vacaciones", 32)
+    dias_libres_disponibles = user.get("dias_libres", 6)
+    
+    return {
+        "user_id": user["user_id"],
+        "nombre": user.get("name", ""),
+        "email": user.get("email", ""),
+        "abreviatura": user.get("abreviatura", ""),
+        "color": user.get("color", "#3B82F6"),
+        # Vacaciones
+        "dias_disponibles": dias_vacaciones_disponibles,
+        "dias_disfrutados": vacaciones_count,
+        "dias_restantes": dias_vacaciones_disponibles - vacaciones_count,
+        # Días libres
+        "dias_libres_disponibles": dias_libres_disponibles,
+        "dias_libres_disfrutados": libres_count,
+        "dias_libres_restantes": dias_libres_disponibles - libres_count,
+    }
+
+# Admin: Get all users' vacations (for admin calendar view)
+@api_router.get("/admin/vacaciones")
+async def get_all_vacaciones(request: Request, month: Optional[str] = None, year: Optional[int] = None):
+    """Get all users' vacations (admin only)"""
+    await require_admin(request)
+    
+    query = {}
+    if month:
+        query["fecha"] = {"$regex": f"^{month}"}
+    elif year:
+        query["fecha"] = {"$regex": f"^{year}"}
+    
+    vacaciones = await db.vacaciones.find(query, {"_id": 0}).to_list(10000)
+    return vacaciones
+
+@api_router.get("/admin/vacaciones/resumen")
+async def get_all_resumen(request: Request, year: Optional[int] = None):
+    """Get all users' vacation summary (admin only)"""
+    await require_admin(request)
+    
+    if not year:
+        year = datetime.now().year
+    
+    # Get all approved users
+    users = await db.users.find({"status": UserStatus.APPROVED}, {"_id": 0, "password_hash": 0}).to_list(1000)
     
     resumen = []
-    for op in operarios:
+    for user in users:
         # Count vacaciones for this year
         vacaciones_count = await db.vacaciones.count_documents({
-            "operario_id": op["id"],
+            "user_id": user["user_id"],
             "fecha": {"$regex": f"^{year}"},
             "tipo": "vacacion"
         })
         # Count dias libres for this year
         libres_count = await db.vacaciones.count_documents({
-            "operario_id": op["id"],
+            "user_id": user["user_id"],
             "fecha": {"$regex": f"^{year}"},
             "tipo": "libre"
         })
         
-        # Días de vacaciones
-        dias_vacaciones_disponibles = op.get("dias_vacaciones", 22)
-        # Días libres (mismo tratamiento que vacaciones)
-        dias_libres_disponibles = op.get("dias_libres", 6)
+        dias_vacaciones_disponibles = user.get("dias_vacaciones", 32)
+        dias_libres_disponibles = user.get("dias_libres", 6)
         
         resumen.append({
-            "operario_id": op["id"],
-            "nombre": op["nombre"],
-            "abreviatura": op["abreviatura"],
-            "color": op["color"],
+            "user_id": user["user_id"],
+            "nombre": user.get("name", ""),
+            "email": user.get("email", ""),
+            "abreviatura": user.get("abreviatura", ""),
+            "color": user.get("color", "#3B82F6"),
             # Vacaciones
             "dias_disponibles": dias_vacaciones_disponibles,
             "dias_disfrutados": vacaciones_count,
             "dias_restantes": dias_vacaciones_disponibles - vacaciones_count,
-            # Días libres (con contadores completos)
+            # Días libres
             "dias_libres_disponibles": dias_libres_disponibles,
             "dias_libres_disfrutados": libres_count,
             "dias_libres_restantes": dias_libres_disponibles - libres_count,
         })
     
     return resumen
+
+# Legacy endpoints for backwards compatibility (admin only now)
+@api_router.get("/vacaciones")
+async def get_vacaciones(request: Request, month: Optional[str] = None):
+    """Get vacaciones - redirects based on role"""
+    try:
+        user = await get_current_user(request)
+        if user.get("role") == UserRole.ADMIN:
+            query = {}
+            if month:
+                query["fecha"] = {"$regex": f"^{month}"}
+            vacaciones = await db.vacaciones.find(query, {"_id": 0}).to_list(10000)
+            return vacaciones
+        else:
+            # Return only user's vacations
+            query = {"user_id": user["user_id"]}
+            if month:
+                query["fecha"] = {"$regex": f"^{month}"}
+            vacaciones = await db.vacaciones.find(query, {"_id": 0}).to_list(10000)
+            return vacaciones
+    except:
+        return []
+
+@api_router.get("/vacaciones/resumen")
+async def get_vacaciones_resumen(request: Request, year: Optional[int] = None):
+    """Get vacation summary - redirects based on role"""
+    try:
+        user = await get_current_user(request)
+        if user.get("role") == UserRole.ADMIN:
+            return await get_all_resumen(request, year)
+        else:
+            return [await get_my_resumen(request, year)]
+    except:
+        return []
 
 # ============ BUDGET TEMPLATE ENDPOINTS ============
 
