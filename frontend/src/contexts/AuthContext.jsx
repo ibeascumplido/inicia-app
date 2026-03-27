@@ -60,18 +60,16 @@ export const AuthProvider = ({ children }) => {
   }, [checkAuth]);
 
   const login = async (email, password) => {
-    const response = await axios.post(`${API}/auth/login`, { email, password }, {
-      withCredentials: true
-    });
+    const response = await axios.post(`${API}/auth/login`, { email, password });
+    localStorage.setItem('session_token', response.data.session_token);
     setUser(response.data.user);
     setIsAuthenticated(true);
     return response.data;
   };
 
   const register = async (email, password, name) => {
-    const response = await axios.post(`${API}/auth/register`, { email, password, name }, {
-      withCredentials: true
-    });
+    const response = await axios.post(`${API}/auth/register`, { email, password, name });
+    localStorage.setItem('session_token', response.data.session_token);
     setUser(response.data.user);
     setIsAuthenticated(true);
     return response.data;
