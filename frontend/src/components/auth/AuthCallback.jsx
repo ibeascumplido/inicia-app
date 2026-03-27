@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import { Loader2 } from 'lucide-react';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const API = '/api';
 
 const AuthCallback = () => {
   const navigate = useNavigate();
