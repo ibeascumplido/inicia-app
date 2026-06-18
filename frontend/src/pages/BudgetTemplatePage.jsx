@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import html2pdf from "html2pdf.js";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import { API } from '@/lib/api';
 
 const VAT_OPTIONS = [
   { value: "0", label: "0%" },

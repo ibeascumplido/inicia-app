@@ -18,11 +18,32 @@ import resend
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+load_dotenv(ROOT_DIR.parent / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# MongoDB connection (lazy init for Vercel/serverless)
+_mongo_client: Optional[AsyncIOMotorClient] = None
+_db = None
+
+
+def get_db():
+    global _mongo_client, _db
+    if _db is None:
+        mongo_url = os.environ.get('MONGO_URL')
+        db_name = os.environ.get('DB_NAME')
+        if not mongo_url or not db_name:
+            raise RuntimeError('MONGO_URL and DB_NAME environment variables are required')
+        _mongo_client = AsyncIOMotorClient(mongo_url)
+        _db = _mongo_client[db_name]
+    return _db
+
+
+class _DBProxy:
+    def __getattr__(self, name):
+        return getattr(get_db(), name)
+
+
+db = _DBProxy()
+client = None  # compat: shutdown hook below uses get_db client
 
 # Resend configuration
 resend.api_key = os.environ.get('RESEND_API_KEY', '')
@@ -1442,10 +1463,28 @@ async def get_dashboard_stats():
 # Include the router in the main app
 app.include_router(api_router)
 
+
+def _cors_origins() -> list[str]:
+    explicit = os.environ.get("CORS_ORIGINS", "").strip()
+    if explicit:
+        return [origin.strip() for origin in explicit.split(",") if origin.strip()]
+
+    origins: list[str] = []
+    for env_key in ("VERCEL_URL", "VERCEL_BRANCH_URL"):
+        host = os.environ.get(env_key, "").strip()
+        if host:
+            origins.append(f"https://{host}")
+
+    if origins:
+        return origins
+
+    return ["*"]
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=_cors_origins(),
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -1459,4 +1498,7 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
-    client.close()
+    global _mongo_client
+    if _mongo_client is not None:
+        _mongo_client.close()
+        _mongo_client = None

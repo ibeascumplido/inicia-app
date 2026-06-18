@@ -1,0 +1,15 @@
+.emergent
+memory
+test_reports
+tests
+backend_test.py
+test_result.md
+design_guidelines.json
+*.md
+!README.md
+frontend/node_modules
+backend/.venv
+backend/__pycache__
+**/__pycache__
+**/.pytest_cache
+.git

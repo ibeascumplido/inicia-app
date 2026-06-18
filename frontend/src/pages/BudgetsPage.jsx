@@ -24,7 +24,7 @@ import {
 import { toast } from "sonner";
 import axios from "axios";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import { API } from '@/lib/api';
 
 const statusLabels = {
   pending: "Pendiente",

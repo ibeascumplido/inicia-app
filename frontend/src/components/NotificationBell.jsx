@@ -20,7 +20,7 @@ import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import { API } from '@/lib/api';
 
 const NotificationBell = () => {
   const [notifications, setNotifications] = useState([]);
