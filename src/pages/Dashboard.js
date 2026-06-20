@@ -1,10 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './Dashboard.css';
 
 export default function Dashboard({ user, budgets, users, pendingCount, onNavigate }) {
-  const [showPendingUsers, setShowPendingUsers] = useState(false);
-
-  const pendingUsers = users.filter(u => u.status === 'Pendiente');
   const approvedBudgets = budgets.filter(b => b.estado === 'Aprobado').reduce((sum, b) => sum + b.total, 0);
 
   return (
