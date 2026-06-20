@@ -1,0 +1,272 @@
+.users-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-box {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #e5e7eb;
+}
+
+.stat-box.pending {
+  border-left-color: #fbbf24;
+}
+
+.stat-box.approved {
+  border-left-color: #10b981;
+}
+
+.stat-box.admin {
+  border-left-color: #8b5cf6;
+}
+
+.stat-icon {
+  font-size: 28px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+}
+
+.users-toolbar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.search-input,
+.filter-select {
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.search-input {
+  flex: 1;
+}
+
+.table-container {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.user-email {
+  font-size: 12px;
+  color: #999;
+}
+
+.number {
+  text-align: center;
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  background: #f3f4f6;
+}
+
+.action-btn.edit {
+  color: #3b82f6;
+  border-color: #dbeafe;
+}
+
+.action-btn.edit:hover {
+  background-color: #dbeafe;
+}
+
+.action-btn.approve {
+  color: #10b981;
+  border-color: #d1fae5;
+}
+
+.action-btn.approve:hover {
+  background-color: #d1fae5;
+}
+
+.action-btn.reject {
+  color: #ef4444;
+  border-color: #fee2e2;
+}
+
+.action-btn.reject:hover {
+  background-color: #fee2e2;
+}
+
+.action-btn.delete {
+  color: #ef4444;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.role-admin {
+  background-color: #ede9fe;
+  color: #6d28d9;
+}
+
+.role-usuario {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  color: #333;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.modal-body .form-group {
+  margin-bottom: 16px;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.modal-footer .btn {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .users-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .users-toolbar {
+    flex-direction: column;
+  }
+
+  .table {
+    font-size: 12px;
+  }
+
+  .modal-content {
+    width: 90%;
+  }
+}

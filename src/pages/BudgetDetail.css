@@ -1,0 +1,111 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content.large {
+  width: 90%;
+  max-width: 1000px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.detail-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.materials-section {
+  margin-top: 20px;
+}
+
+.materials-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: #ff6b6b;
+  color: white;
+  border-radius: 8px;
+}
+
+.materials-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+}
+
+.materials-table thead {
+  background: #f9fafb;
+}
+
+.materials-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #666;
+  font-size: 12px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.materials-table td {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.materials-table input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.materials-table .total {
+  font-weight: 600;
+  color: #333;
+  background: #f9fafb;
+}
+
+.btn-delete {
+  background: transparent;
+  border: 1px solid #fee2e2;
+  color: #ef4444;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-small {
+  padding: 10px 16px;
+  font-size: 13px;
+}
+
+.total-section {
+  background: #f0f9ff;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+.total-section h3 {
+  font-size: 20px;
+  color: #1e40af;
+  margin: 0;
+}

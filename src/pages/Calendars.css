@@ -1,0 +1,266 @@
+.calendars-toolbar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pending-badge {
+  background: #fed7aa;
+  color: #ea580c;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.btn-small {
+  padding: 10px 16px;
+  font-size: 13px;
+}
+
+.filter-select {
+  padding: 10px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.employees-summary {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.employees-summary h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.summary-table thead {
+  background: #f9fafb;
+}
+
+.summary-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #666;
+  font-size: 12px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.summary-table th.sub-header {
+  border-bottom: 1px solid #e5e7eb;
+  background: #fafbfc;
+}
+
+.summary-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.employee-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+}
+
+.employee-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.employee-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 13px;
+}
+
+.employee-email {
+  font-size: 11px;
+  color: #999;
+}
+
+.summary-table td.approved {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.summary-table td.pending {
+  color: #f97316;
+  font-weight: 600;
+}
+
+.summary-table td.rest {
+  color: #666;
+}
+
+.calendar-view {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.calendar-nav h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.nav-btn {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+  background: #e5e7eb;
+}
+
+.calendar {
+  margin-bottom: 20px;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.weekday {
+  text-align: center;
+  font-weight: 600;
+  color: #666;
+  font-size: 12px;
+  padding: 8px;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #333;
+  background: white;
+}
+
+.day.empty {
+  background: #f9fafb;
+  border: none;
+}
+
+.day.today {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+.calendar-legend {
+  display: flex;
+  gap: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  margin-bottom: 16px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+}
+
+.legend-box.pending {
+  background: #fbbf24;
+}
+
+.legend-box.approved {
+  background: #10b981;
+}
+
+.legend-box.rejected {
+  background: #ef4444;
+}
+
+.legend-item span {
+  font-size: 12px;
+  color: #666;
+}
+
+.legend-employees {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.legend-label {
+  font-weight: 600;
+  color: #333;
+  font-size: 12px;
+}
+
+.legend-employee {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  border: 2px solid;
+}
