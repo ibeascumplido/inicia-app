@@ -29,7 +29,6 @@ export default function Calendars({ users }) {
     return days;
   };
 
-  const today = new Date();
   const dayNames = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
   const days = renderCalendar();
   const pendingCount = users.filter(u => u.status === 'Pendiente').length;
