@@ -3,8 +3,6 @@ import './Calendars.css';
 
 export default function Calendars({ users }) {
   const [filterUser, setFilterUser] = useState('Todos');
-  // Variables comentadas - no se utilizan en la versión actual
-  // const [viewMode, setViewMode] = useState('month');
 
   const getDaysInMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -32,7 +30,6 @@ export default function Calendars({ users }) {
   };
 
   const today = new Date();
-  const monthNameFormatted = today.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
   const dayNames = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
   const days = renderCalendar();
   const pendingCount = users.filter(u => u.status === 'Pendiente').length;
